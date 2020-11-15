@@ -1,34 +1,35 @@
 
-drawLayout <- function (xml, data){
-  plot <- ggplot2::ggplot() + ggplot2::geom_point() +
-    ggplot2::xlim(c(0, data$end[1])) +
-    ggplot2::ylim(c(0, 4)) +
-    ggplot2::labs(x = "Amino acid number") + ggplot2::labs(y = "") +
-    ggplot2::guides(fill=ggplot2::guide_legend(title=getProteinName(xml))) +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-                   panel.grid.major = ggplot2::element_blank(),
-                   axis.ticks = ggplot2::element_blank(),
-                   axis.text.y = ggplot2::element_blank(),
-                   panel.border = ggplot2::element_blank())
+featureDataFrame <- function(featuresList){
+  features <- NULL
+  for(i in seq_along(featuresList)){
+    obj <- featuresList[[i]]
+
+    des <- obj$.attrs["description"]
+    if(is.na(des)){
+      des <- obj$.attrs["type"]
+    }
+
+    if(!is.null(obj$location[["begin"]])) {
+      posB <- as.numeric(obj$location$begin)
+      posE <- as.numeric(obj$location$end)
+    }else{
+      posB <- as.numeric(obj$location$position)
+      posE <- as.numeric(obj$location$position)
+    }
+
+    features <- rbind(features, c(obj$.attrs["type"], des, posB, posE))
+  }
+
+  dataframe <- as.data.frame(features, stringsAsFactors = FALSE)
+  colnames(dataframe) <- c("type", "description", "begin", "end")
+  dataframe$begin <- as.numeric(dataframe$begin)
+  dataframe$end <- as.numeric(dataframe$end)
+
+  return(dataframe)
 }
 
-elementIfMatch <- function (data, type, xoff = 0, ymi = 0, yma = 3){
-  ggplot2::geom_rect(
-    data[tolower(data$type) == tolower(type),],
-    mapping = ggplot2::aes(xmin = begin - xoff, xmax = end + xoff, ymin = ymi, ymax = yma, fill = description)
-  )
+listFromName <- function (proteinList, name){
+  proteinList[grepl(name, names(proteinList))]
 }
-elementIfContains <- function(data, type, xoff = 1, ymi = 3, yma = 3.5){
-  ggplot2::geom_rect(
-    data[grepl(tolower(type), tolower(data$description), fixed = TRUE),],
-    mapping = ggplot2::aes(xmin = begin - xoff, xmax = end + xoff, ymin = ymi, ymax = yma, fill = description)
-  )
-}
-
-drawMotifs <- function (data) elementIfMatch(data, "short sequence motif")
-drawChain <- function(data) elementIfMatch(data, "chain")
-drawRegions <- function(data) elementIfMatch(data, "region of interest")
-drawDomains <- function(data) elementIfMatch(data, "domain")
-drawBetaStrands <- function (data) elementIfMatch(data, "strand", ymi = 2, yma = 3.5)
-drawHelicies <- function (data) elementIfMatch(data, "helix", ymi = 2, yma = 3.5)
-drawTurns <- function (data) elementIfMatch(data, "turn", ymi = 2, yma = 3.5)
+getFeatureList <- function (proteinList) listFromName(proteinList, "feature")
+getProteinName <- function(proteinList) proteinList$name
