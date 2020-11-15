@@ -1,9 +1,9 @@
 Package: uniprotProteinView
 Type: Package
-Title: What the package does (short line)
+Title: Show 2D plot of protein information retrieved from the Uniprot database
 Version: 1.0
-Date: 2020-11-10
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Date: 2020-11-14
+Author: George Zorn
+Maintainer: George Zorn <george.zorn@mail.utoronto.ca>
+Description: Can be used to draw xml file data from the Uniprot database and parse into a visual data plot.
+License: GNU General Public License
