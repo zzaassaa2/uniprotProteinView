@@ -6,4 +6,10 @@ Date: 2020-11-14
 Author: George Zorn
 Maintainer: George Zorn <george.zorn@mail.utoronto.ca>
 Description: Can be used to draw xml file data from the Uniprot database and parse into a visual data plot.
-License: GNU General Public License
+License: MIT License
+Depends: R (>= 3.1.0)
+Imports: 
+    httr,
+    XML,
+    ggplot2
+RoxygenNote: 7.1.1
