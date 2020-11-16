@@ -1,0 +1,13 @@
+citHeader("To cite lubridate in publications use:")
+
+citEntry(
+  entry        = "Unplublished",
+  title        = "uniprotProteinView",
+  author       = "George Zorn",
+  note         = "Unpublished"
+  year         = "2020",
+  textVersion  =
+  paste(
+
+  )
+)
