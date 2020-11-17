@@ -42,10 +42,14 @@ This package was developed as part of an assessment for 2020BCB410H: Applied Bio
 
 ## Example
 
-To retrieve data, there are three options provided: TODO
-
 ``` r
-
+    xmls <- getProteinRemote(c("Q04206", "Q9D270"))
+    features <- getFeatureList(xmls)
+    data <- featuresToDataFrame(features)
+    plots <- drawPlot(data)
+    plots <- elementIfMatch(plots, data, "chain")
+    plots <- elementIfContains(plots, data, "phoso")
+    plotProteins(plots)
 ```
 
-![](./Rplot01.png)
+![](inst/Rplot01.png)
