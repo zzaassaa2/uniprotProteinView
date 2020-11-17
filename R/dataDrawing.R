@@ -20,7 +20,7 @@ dp <- function (data, height = 1.3){
   plot <- ggplot2::ggplot() + ggplot2::geom_point() +
     ggplot2::xlim(c(0, data$end[1])) +
     ggplot2::ylim(c(0, height)) +
-    ggplot2::labs(x = "Amino acid number") + ggplot2::labs(y = "todo") +
+    ggplot2::labs(x = "Amino acid number") + ggplot2::labs(y = "") +
     ggplot2::guides(fill=ggplot2::guide_legend(title=data$name)) +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
                    panel.grid.major = ggplot2::element_blank(),
