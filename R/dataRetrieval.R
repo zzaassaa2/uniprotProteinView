@@ -37,7 +37,8 @@ getProteinLocal <- function (fileNames){
 #' retrieved, then the data will be parsed and stored as a list within a parent list of the same size as
 #' the number of codes provided
 #'
-#' @import httr, XML
+#' @import httr
+#' @import XML
 #'
 #' @examples
 #' proteins <- getProteinRemote(c(c("Q0D270","Q0D271","Q0D272"))
@@ -65,7 +66,8 @@ getProteinRemote <- function(codes){
 #' retrieved, then the data will be parsed and stored as a list within a parent list of the same size as
 #' the number of codes provided
 #'
-#' @import XML, stringr
+#' @import XML
+#' @import stringr
 #'
 #' @examples
 #' proteins <- getProteinRemoteD(c(c("Q0D270","Q0D271","Q0D272"))

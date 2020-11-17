@@ -9,7 +9,7 @@ Description: Can be used to draw xml file data from the Uniprot database and par
 License: MIT License
 LazyData: true
 Depends: R (>= 3.1.0)
-Imports: 
+Imports:
     httr,
     XML,
     ggplot2,
