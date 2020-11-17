@@ -48,6 +48,7 @@ This package was developed as part of an assessment for 2020BCB410H: Applied Bio
     data <- featuresToDataFrame(features)
     plots <- drawPlot(data)
     plots <- elementIfMatch(plots, data, "chain")
+    plots <- drawDomains(plots, data)
     plots <- elementIfContains(plots, data, "phoso")
     plotProteins(plots)
 ```
