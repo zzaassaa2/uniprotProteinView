@@ -15,6 +15,7 @@
 #' @examples
 #' proteins <- getProteinLocal(c("Q0D270.xml","Q0D271.xml","Q0D272.xml"))
 #'
+#' @export
 getProteinLocal <- function (fileNames){
   out <- NULL
   for(i in seq_along(fileNames)){
@@ -38,11 +39,13 @@ getProteinLocal <- function (fileNames){
 #' the number of codes provided
 #'
 #' @import httr
+#'
 #' @import XML
 #'
 #' @examples
 #' proteins <- getProteinRemote(c(c("Q0D270","Q0D271","Q0D272"))
 #'
+#' @export
 getProteinRemote <- function(codes){
   out <- NULL
   for(i in seq_along(codes)){
@@ -67,11 +70,13 @@ getProteinRemote <- function(codes){
 #' the number of codes provided
 #'
 #' @import XML
+#'
 #' @import stringr
 #'
 #' @examples
 #' proteins <- getProteinRemoteD(c(c("Q0D270","Q0D271","Q0D272"))
 #'
+#' @export
 getProteinRemoteD <- function(codes){
   fileNames <- NULL
   for(i in seq_along(codes)){

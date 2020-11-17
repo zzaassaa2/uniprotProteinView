@@ -13,6 +13,7 @@
 #' features <- getFeatureList(xmls)
 #' data <- featuresToDataFrame(features)
 #'
+#' @export
 featuresToDataFrame <- function(featuresList){
   out <- NULL
   for(i in seq_along(featuresList)){
@@ -66,6 +67,7 @@ featuresToDataFrame <- function(featuresList){
 #' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
 #' featuresForTheFirstProtein <- listFromName(xmls[[1]], "features")
 #'
+#' @export
 listFromName <- function (proteinList, name){
   proteinList[grepl(name, names(proteinList))]
 }
@@ -85,6 +87,7 @@ listFromName <- function (proteinList, name){
 #' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
 #' features <- getFeatureList(xmls)
 #'
+#' @export
 getFeatureList <- function (proteinList){
   lapply(proteinList, listFromName, name = "feature")
 }

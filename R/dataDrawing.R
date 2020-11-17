@@ -16,6 +16,7 @@
 #' data <- featuresToDataFrame(features)
 #' plotForSingleProtein <- dp(data[[1]])
 #'
+#' @export
 dp <- function (data, height = 1.3){
   plot <- ggplot2::ggplot() + ggplot2::geom_point() +
     ggplot2::xlim(c(0, data$end[1])) +
@@ -46,6 +47,7 @@ dp <- function (data, height = 1.3){
 #' data <- featuresToDataFrame(features)
 #' plots <- drawPlot(data)
 #'
+#' @export
 drawPlot <- function (dataList){
   lapply(dataList, dp)
 }
@@ -79,6 +81,7 @@ drawPlot <- function (dataList){
 #' plots <- drawPlot(data)
 #' plots <- elementIfMatch(plots, data, "chain")
 #'
+#' @export
 elementIfMatch <- function (plots, data, type, xoff = 0, ymi = 0, yma = 1){
   for(i in seq_along(plots)){
     plot <- plots[[i]]
@@ -123,6 +126,7 @@ elementIfMatch <- function (plots, data, type, xoff = 0, ymi = 0, yma = 1){
 #' plots <- drawPlot(data)
 #' plots <- elementIfContains(plots, data, "Phos")
 #'
+#' @export
 elementIfContains <- function(plots, data, type, xoff = 1, ymi = 1, yma = 1.1){
   for(i in seq_along(plots)){
     plot <- plots[[i]]
@@ -159,6 +163,7 @@ elementIfContains <- function(plots, data, type, xoff = 1, ymi = 1, yma = 1.1){
 #' plots <- drawPlot(data)
 #' plots <- drawMotifs(plots, data)
 #'
+#' @export
 drawMotifs <- function (plots, data) elementIfMatch(plots, data, "short sequence motif")
 
 #' Add all chains from protein's features to respective plot
@@ -182,6 +187,7 @@ drawMotifs <- function (plots, data) elementIfMatch(plots, data, "short sequence
 #' plots <- drawPlot(data)
 #' plots <- drawChain(plots, data)
 #'
+#' @export
 drawChain <- function(plots, data) elementIfMatch(plots, data, "chain")
 
 #' Add all reginos from protein's features to respective plot
@@ -205,6 +211,7 @@ drawChain <- function(plots, data) elementIfMatch(plots, data, "chain")
 #' plots <- drawPlot(data)
 #' plots <- drawRegions(plots, data)
 #'
+#' @export
 drawRegions <- function(plots, data) elementIfMatch(plots, data, "region of interest")
 
 #' Add all domains from protein's features to respective plot
@@ -228,6 +235,7 @@ drawRegions <- function(plots, data) elementIfMatch(plots, data, "region of inte
 #' plots <- drawPlot(data)
 #' plots <- drawDomains(plots, data)
 #'
+#' @export
 drawDomains <- function(plots, data) elementIfMatch(plots, data, "domain")
 
 #' Add all beta-strands from protein's features to respective plot
@@ -251,6 +259,7 @@ drawDomains <- function(plots, data) elementIfMatch(plots, data, "domain")
 #' plots <- drawPlot(data)
 #' plots <- drawBetaStrands(plots, data)
 #'
+#' @export
 drawBetaStrands <- function (plots, data) elementIfMatch(plots, data, "strand", xoff = 1, ymi = 1.1, yma = 1.2)
 
 #' Add all helicies from protein's features to respective plot
@@ -274,6 +283,7 @@ drawBetaStrands <- function (plots, data) elementIfMatch(plots, data, "strand", 
 #' plots <- drawPlot(data)
 #' plots <- drawHelicies(plots, data)
 #'
+#' @export
 drawHelicies <- function (plots, data) elementIfMatch(plots, data, "helix", xoff = 1, ymi = 1.1, yma = 1.2)
 
 #' Add all turns from protein's features to respective plot
@@ -297,6 +307,7 @@ drawHelicies <- function (plots, data) elementIfMatch(plots, data, "helix", xoff
 #' plots <- drawPlot(data)
 #' plots <- drawTurns(plots, data)
 #'
+#' @export
 drawTurns <- function (plots, data) elementIfMatch(plots, data, "turn", xoff = 1, ymi = 1.1, yma = 1.2)
 
 #' Draw all plots from a plot list to a single plot
@@ -317,6 +328,7 @@ drawTurns <- function (plots, data) elementIfMatch(plots, data, "turn", xoff = 1
 #' plots <- drawMotifs(plots, data)
 #' plotProteins(plots)
 #'
+#' @export
 plotProteins <- function(plots){
   cowplot::plot_grid(plotlist=plots)
 }
