@@ -1,7 +1,7 @@
-citHeader("To cite lubridate in publications use:")
+citHeader("To cite uniprotProteinView in publications use:")
 
 citEntry(
-  entry        = "Unplublished",
+  entry        = "Unpublished",
   title        = "uniprotProteinView",
   author       = "George Zorn",
   note         = "Unpublished"
