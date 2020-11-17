@@ -53,4 +53,4 @@ This package was developed as part of an assessment for 2020BCB410H: Applied Bio
     plotProteins(plots)
 ```
 
-![](inst/Rplot01.png)
+![](inst/extdata/Rplot01.png)
