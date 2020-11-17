@@ -34,7 +34,9 @@ The author of the package is George Zorn. The xml retrieval functions make use o
 
 ## References
 
-TODO
+Wickham, H. and Bryan, J. (2019). R Packages (2nd edition). Newton, Massachusetts: O’Reilly Media. https://r-pkgs.org/
+
+The UniProt Consortium. UniProt: a worldwide hub of protein knowledge. Nucleic Acids Res. 47: D506-515 (2019)
 
 ## Acknowledgements
 
@@ -49,7 +51,7 @@ This package was developed as part of an assessment for 2020BCB410H: Applied Bio
     plots <- drawPlot(data)
     plots <- elementIfMatch(plots, data, "chain")
     plots <- drawDomains(plots, data)
-    plots <- elementIfContains(plots, data, "phoso")
+    plots <- drawBetaStrands(plots, data)
     plotProteins(plots)
 ```
 

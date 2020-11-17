@@ -82,7 +82,7 @@ Next is to fill out the plots with various data, from here there are two primary
     data <- featuresToDataFrame(features)
     plots <- drawPlot(data)
     plots <- elementIfMatch(plots, data, "chain")
-    plots <- elementIfContains(plots, data, "phoso")
+    plots <- elementIfContains(plots, data, "phos")
     plotProteins(plots)
 ```
 
