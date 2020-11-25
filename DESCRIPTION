@@ -1,7 +1,7 @@
 Package: uniprotProteinView
 Type: Package
 Title: Show 2D plot of protein information retrieved from the Uniprot database
-Version: 0.1.0
+Version: 0.2.0
 Date: 2020-11-16
 Author: George Zorn
 Maintainer: George Zorn <george.zorn@mail.utoronto.ca>

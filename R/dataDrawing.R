@@ -99,9 +99,11 @@ draw <- function (env, d, figure, colors, i, types, dess, structure, yStart, btw
   figure
 }
 
-#'@import httr
+#'
+#' @import httr
 #' @import XML
 #' @import plotly
+#'
 #' @export
 drawProtein <- function(proteins, types = list(), dess = list(), structure = list(), singleOffset = 1, title = NULL, saveGlobal = FALSE,
                         btwnSpacingStart = 1, btwnSpacing = 0.3,
