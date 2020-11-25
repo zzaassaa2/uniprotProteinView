@@ -162,7 +162,7 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
 
 #source("R/dataRetrieval.R")
 #source("R/dataParsing.R")
-drawProtein("Q04206")
+#drawProtein("Q04206")
 #drawProtein(
 #  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
 #  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
