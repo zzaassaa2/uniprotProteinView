@@ -11,7 +11,7 @@ To download package:
 
 ``` r
 install.packages("devtools")
-devtools::install_github("zzaassaa2/uniprotProteinView")
+devtools::install_github("zzaassaa2/uniprotProteinView", build_vignettes = TRUE)
 library("uniprotProteinView")
 ```
 
