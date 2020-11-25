@@ -112,6 +112,9 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
 ){
   environment <- environment()
   #setUp(environment, proteins, saveGlobal)
+  test <- getProtein(proteins$source)
+  print(is.null(test))
+
   xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source), getProtein(proteins))
   if(saveGlobal){
     .GlobalEnv$uniProtProteinView_xmls <- xml
