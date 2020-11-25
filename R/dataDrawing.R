@@ -58,12 +58,15 @@ ifelse <- function (condition, true, false){
 }
 
 setUp <- function (env, proteins, saveGlobal){
+  print("called")
   env$xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source), getProtein(proteins))
   if(saveGlobal){
     .GlobalEnv$uniProtProteinView_xmls <- env$xml
     .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(.GlobalEnv$uniProtProteinView_xmls)
   }else{
     env$uniProtProteinView_xmls <- env$xml
+    print("called2")
+    print(env$xml)
     env$uniProtProteinView_data <- getFeaturesDataFrame(env$uniProtProteinView_xmls)
   }
 
@@ -145,14 +148,15 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
 
 source("R/dataRetrieval.R")
 source("R/dataParsing.R")
-drawProtein(
-  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
-  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-  dess = list(type = "phos", colors = "blue"),
-  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
-  singleOffset = 2,
-  saveGlobal = FALSE
-)
+drawProtein("Q04206")
+#drawProtein(
+#  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
+#  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+#  dess = list(type = "phos", colors = "blue"),
+#  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
+#  singleOffset = 2,
+#  saveGlobal = FALSE
+#)
 #preDraw = NULL, preChain = NULL, postChain = NULL,
 #featureDraw = NULL, gapDraw = NULL, postDraw = NULL
 
