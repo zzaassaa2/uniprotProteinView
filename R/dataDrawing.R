@@ -61,7 +61,7 @@ setUp <- function (env, proteins, saveGlobal){
   env$xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source), getProtein(proteins))
   if(saveGlobal){
     .GlobalEnv$uniProtProteinView_xmls <- env$xml
-    .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
+    .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(.GlobalEnv$uniProtProteinView_xmls)
   }else{
     env$uniProtProteinView_xmls <- env$xml
     env$uniProtProteinView_data <- getFeaturesDataFrame(env$uniProtProteinView_xmls)
