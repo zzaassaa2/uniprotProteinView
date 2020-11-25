@@ -1,4 +1,4 @@
-getProtein <- function(source){
+getProtein <- function(source){#list.files("temp", pattern="*.csv", full.names=TRUE)
   out <- vector(mode = "list", length = length(source))
 
   print("Loading proteins")
@@ -95,4 +95,3 @@ getRandomProtein <- function(orgID){
   k <- httr::GET(paste0("https://www.uniprot.org/uniprot/?query=reviewed:yes+AND+organism:",orgID,"&random=yes"))
   getRemote(url = paste0(k$url, ".xml"))
 }
-
