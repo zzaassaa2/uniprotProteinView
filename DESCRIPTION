@@ -11,11 +11,6 @@ LazyData: true
 License: MIT License
 Depends: R (>= 4.0)
 Imports:
-    httr,
-    XML,
-    ggplot2,
-    cowplot,
-    stringr
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,

@@ -1,334 +1,163 @@
-#' Interanl function that can generate a plot for one protein
-#'
-#' This function will take a protein's dataFrame and make a plot from it
-#'
-#' @param data Protein's dataFrame
-#'
-#' @param height The height of the plot
-#'
-#' @return If dataFrame provided is of the correct format, will return a blank plot
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plotForSingleProtein <- dp(data[[1]])
-#'
-#' @export
-dp <- function (data, height = 1.3){
-  plot <- ggplot2::ggplot() + ggplot2::geom_point() +
-    ggplot2::xlim(c(0, data$end[1])) +
-    ggplot2::ylim(c(0, height)) +
-    ggplot2::labs(x = "Amino acid number") + ggplot2::labs(y = "") +
-    ggplot2::guides(fill=ggplot2::guide_legend(title=data$name)) +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-                   panel.grid.major = ggplot2::element_blank(),
-                   axis.ticks = ggplot2::element_blank(),
-                   axis.text.y = ggplot2::element_blank(),
-                   panel.border = ggplot2::element_blank()) +
-    ggplot2::theme(legend.position = "bottom")
+randomColor <- function(){
+  i <- runif(3)
+  rgb(i[[1]],
+      i[[2]],
+      i[[3]]
+  )
 }
 
-#' Generate a plot for a list of protein dataFrames
-#'
-#' This function will take a list of protein dataFrames and generate a list of plots for each.
-#'
-#' @param dataList List of protein dataFrames
-#'
-#' @return A list of plots for each protein feature dataFrame
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#'
-#' @export
-drawPlot <- function (dataList){
-  lapply(dataList, dp)
+drawChain <- function(figure, xi, xf, yi, yf, info, clr, offset = 0){
+  nameIn <- gsub("\\;.*","", info)
+  if(nchar(nameIn) >= 30) nameIn <- paste0(substr(nameIn, 1, 30), "...")
+
+  plotly::add_trace(figure,
+                    x = c(xi-offset, xi-offset, xf+offset, xf+offset),
+                    y = c(yi, yf, yf, yi),
+                    fill = "toself",
+                    fillcolor = clr,
+                    hoveron = 'fills',
+                    line = list(color ="rgba(1,1,1,0.0)"),
+                    name = nameIn,
+                    hoverinfo = "text",
+                    text = paste0(gsub("^\\s+|\\s+$", "", info),
+                                  "\n", "Start: ", xi,
+                                  "\n", "End: ", xf
+                    )
+  )
 }
 
-#' Find all elements from features list that matches pattern
-#'
-#' This function will interate through lists of proteins dataFrames and find all elements that match
-#' type pattern. It will then add the element to the respetive plot. Will return original list of plots
-#' with modified values for the contained plots
-#'
-#' @param plots List of protein plots
-#'
-#' @param data List of protein feature dataFrames
-#'
-#' @param type Pattern used for matching
-#'
-#' @param xoff Offset for the bar, defines how much thickness is added
-#'
-#' @param ymi The Y value where drawing will start
-#'
-#' @param yma The Y value where drawing will stop
-#'
-#' @return A list of plots for each of same size as provided, with modified values for each element
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- elementIfMatch(plots, data, "chain")
-#'
-#' @export
-elementIfMatch <- function (plots, data, type, xoff = 0, ymi = 0, yma = 1){
-  for(i in seq_along(plots)){
-    plot <- plots[[i]]
-    d <- data[[i]]
-    k <- d[tolower(d$type) == tolower(type),]
-    if(dim(k)[1] != 0){
-      plots[[i]] <- plot + ggplot2::geom_rect(
-        k,
-        mapping = ggplot2::aes(xmin = begin - xoff, xmax = end + xoff, ymin = ymi, ymax = yma, fill = description)
-      )
+drawFeature <- function(figure, d, toParse, condition, yStart, yStop, offset = 0){
+  typeParse <- ifelse("type" %in% names(toParse), toParse$type, toParse)
+  colors <- ifelse("colors" %in% names(toParse), toParse$colors, NULL)
+  foundAny <- FALSE
+
+  for(j in seq_along(typeParse)){
+    type <- typeParse[[j]]
+    clr <- ifelse(j <= length(colors), colors[[j]], randomColor())
+    clr <- ifelse(clr == "random", randomColor(), clr)
+    found <- d[condition(type),]
+    if(dim(found)[1] != 0) foundAny <- TRUE
+
+    for(k in seq_along(found)){
+      row <- found[k,]
+      info <- paste0("    ", row$description)
+      xi <- row$begin
+      xf <- row$end
+      figure <- drawChain(figure, xi, xf, yStart, yStop, info, clr, offset)
     }
   }
-  return(plots)
+  return(list(figure = figure, actionPreformed = foundAny))
 }
 
-#' Find all elements from features list that contains the pattern
-#'
-#' This function will interate through lists of proteins dataFrames and find all elements that contain
-#' type pattern. It will then add the element to the respetive plot. Will return original list of plots
-#' with modified values for the contained plots
-#'
-#' @param plots List of protein plots
-#'
-#' @param data List of protein feature dataFrames
-#'
-#' @param type Pattern used for if the element contains
-#'
-#' @param xoff Offset for the bar, defines how much thickness is added
-#'
-#' @param ymi The Y value where drawing will start
-#'
-#' @param yma The Y value where drawing will stop
-#'
-#' @return A list of plots for each of same size as provided, with modified values for each element
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- elementIfContains(plots, data, "Phos")
-#'
-#' @export
-elementIfContains <- function(plots, data, type, xoff = 1, ymi = 1, yma = 1.1){
-  for(i in seq_along(plots)){
-    plot <- plots[[i]]
-    d <- data[[i]]
-    k <- d[grepl(tolower(type), tolower(d$description), fixed = TRUE),]
-    if(dim(k)[1] != 0){
-      plots[[i]] <- plot + ggplot2::geom_rect(
-        k,
-        mapping = ggplot2::aes(xmin = begin - xoff, xmax = end + xoff, ymin = ymi, ymax = yma, fill = description)
-      )
+ifelse <- function (condition, true, false){
+  if(condition){
+    true
+  }else{
+    false
+  }
+}
+
+setUp <- function (env, proteins, saveGlobal){
+  env$xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source), getProtein(proteins))
+  if(saveGlobal){
+    .GlobalEnv$uniProtProteinView_xmls <- env$xml
+    .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
+  }else{
+    env$uniProtProteinView_xmls <- env$xml
+    env$uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
+  }
+
+  env$figure <- plotly::plot_ly(type = "scatter", mode = "lines")
+  env$colors <- ifelse("colors" %in% names(proteins), proteins$colors, NULL)
+  env$yStart <- 0
+}
+
+draw <- function (env, d, figure, colors, i, types, dess, structure, yStart, btwnSpacingStart, btwnSpacing, singleOffset,
+                  preChain, postChain, featureDraw, gapDraw){
+  if(!is.null(preChain)) preChain()
+
+  clr <- ifelse(i <= length(colors), colors[[i]], randomColor())
+  figure <- drawFeature(figure, d, list(colors = clr), function (type) d$type == "chain", yStart, yStop = yStart + 1)$figure
+
+  if(!is.null(postChain)) postChain()
+
+  figure <- drawFeature(figure, d, types, function(type) d$type == type, yStart, yStop = yStart + 1)$figure
+  figure <- drawFeature(figure, d, dess, function(type) grepl(type, d$description, fixed = TRUE), yStart, yStop = yStart + 1, offset = singleOffset)$figure
+
+  if(!is.null(featureDraw)) figure <- featureDraw(figure)
+
+  f <- drawFeature(figure, d, structure, function (type) d$type == type, yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
+  figure <- f$figure
+  env$actionPreformed <- f$actionPreformed
+
+  if(!is.null(gapDraw)){
+    k <- gapDraw(figure)
+
+    if(is.list(k) && "figure" %in% names(k) && "actionPreformed" %in% names(k)){
+      env$actionPreformed <- env$actionPreformed || k$actionPreformed
+    }else{
+      warning("An event for the gapDraw function was provided, but ignored due to improper format, consult vignettes for proper format")#todo change this after renaming
     }
   }
-  return(plots)
+
+  figure
 }
 
-#' Add all motifs from protein's features to respective plot
-#'
-#' This function is a utility function, that will interate through lists of proteins dataFrames and find all motifs.
-#' It will then add the motif to the respetive plot. Will return original list of plots with modified values for the
-#' contained plots
-#'
-#' @param plots List of protein plots
-#'
-#' @param data List of protein feature dataFrames
-#'
-#' @return A list of plots for each of same size as provided, with modified values for each element
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- drawMotifs(plots, data)
-#'
-#' @export
-drawMotifs <- function (plots, data) elementIfMatch(plots, data, "short sequence motif")
+drawProtein <- function(proteins, types = list(), dess = list(), structure = list(), singleOffset = 1, title = NULL, saveGlobal = FALSE,
+                        btwnSpacingStart = 1, btwnSpacing = 0.3,
+                        preDraw = NULL, preChain = NULL, postChain = NULL,
+                        featureDraw = NULL, gapDraw = NULL, postDraw = NULL
+){
+  environment <- environment()
+  setUp(environment, proteins, saveGlobal)
 
-#' Add all chains from protein's features to respective plot
-#'
-#' This function is a utility function, that will interate through lists of proteins dataFrames and find all chains.
-#' It will then add the chain to the respetive plot. Will return original list of plots with modified values for the
-#' contained plots
-#'
-#' @param plots List of protein plots
-#'
-#' @param data List of protein feature dataFrames
-#'
-#' @return A list of plots for each of same size as provided, with modified values for each element
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- drawChain(plots, data)
-#'
-#' @export
-drawChain <- function(plots, data) elementIfMatch(plots, data, "chain")
+  if(!is.null(preDraw)) preDraw()
 
-#' Add all reginos from protein's features to respective plot
-#'
-#' This function is a utility function, that will interate through lists of proteins dataFrames and find all regions.
-#' It will then add the region to the respetive plot. Will return original list of plots with modified values for the
-#' contained plots
-#'
-#' @param plots List of protein plots
-#'
-#' @param data List of protein feature dataFrames
-#'
-#' @return A list of plots for each of same size as provided, with modified values for each element
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- drawRegions(plots, data)
-#'
-#' @export
-drawRegions <- function(plots, data) elementIfMatch(plots, data, "region of interest")
+  for(i in seq_along(uniProtProteinView_data)){
+    d <- uniProtProteinView_data[[i]]
 
-#' Add all domains from protein's features to respective plot
-#'
-#' This function is a utility function, that will interate through lists of proteins dataFrames and find all domains.
-#' It will then add the domain to the respetive plot. Will return original list of plots with modified values for the
-#' contained plots
-#'
-#' @param plots List of protein plots
-#'
-#' @param data List of protein feature dataFrames
-#'
-#' @return A list of plots for each of same size as provided, with modified values for each element
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- drawDomains(plots, data)
-#'
-#' @export
-drawDomains <- function(plots, data) elementIfMatch(plots, data, "domain")
+    figure <- draw(environment, d, figure, colors, i, types, dess, structure, yStart, btwnSpacingStart, btwnSpacing, singleOffset,
+                   preChain, postChain, featureDraw, gapDraw)
 
-#' Add all beta-strands from protein's features to respective plot
-#'
-#' This function is a utility function, that will interate through lists of proteins dataFrames and find all beta-strands.
-#' It will then add the beta-strand to the respetive plot. Will return original list of plots with modified values for the
-#' contained plots
-#'
-#' @param plots List of protein plots
-#'
-#' @param data List of protein feature dataFrames
-#'
-#' @return A list of plots for each of same size as provided, with modified values for each element
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- drawBetaStrands(plots, data)
-#'
-#' @export
-drawBetaStrands <- function (plots, data) elementIfMatch(plots, data, "strand", xoff = 1, ymi = 1.1, yma = 1.2)
+    figure <- plotly::layout(figure,
+                             annotations = list(
+                               x = -0.01,
+                               y = yStart + 0.5,
+                               text = uniProtProteinView_xmls[[i]]$name,
+                               showarrow = FALSE,
+                               xanchor = "right",
+                               font = list(size = 8)
+                             )
+    )
 
-#' Add all helicies from protein's features to respective plot
-#'
-#' This function is a utility function, that will interate through lists of proteins dataFrames and find all helicies.
-#' It will then add the helix to the respetive plot. Will return original list of plots with modified values for the
-#' contained plots
-#'
-#' @param plots List of protein plots
-#'
-#' @param data List of protein feature dataFrames
-#'
-#' @return A list of plots for each of same size as provided, with modified values for each element
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- drawHelicies(plots, data)
-#'
-#' @export
-drawHelicies <- function (plots, data) elementIfMatch(plots, data, "helix", xoff = 1, ymi = 1.1, yma = 1.2)
+    if(actionPreformed) yStart <- yStart + btwnSpacing
+    yStart <- yStart + 1
+  }
 
-#' Add all turns from protein's features to respective plot
-#'
-#' This function is a utility function, that will interate through lists of proteins dataFrames and find all turns.
-#' It will then add the turn to the respetive plot. Will return original list of plots with modified values for the
-#' contained plots
-#'
-#' @param plots List of protein plots
-#'
-#' @param data List of protein feature dataFrames
-#'
-#' @return A list of plots for each of same size as provided, with modified values for each element
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- drawTurns(plots, data)
-#'
-#' @export
-drawTurns <- function (plots, data) elementIfMatch(plots, data, "turn", xoff = 1, ymi = 1.1, yma = 1.2)
+  figure <- plotly::layout(figure,
+                           title = title,
+                           legend = list(itemsizing = "constant", font = list(size = 8)),
+                           xaxis = list(showgrid = FALSE, title = "Protein Size", dtick = 50),
+                           yaxis = list(showgrid = FALSE, tickvals = NULL)
+  )
 
-#' Draw all plots from a plot list to a single plot
-#'
-#' This function will take a list of plots and combine them all onto a single plot for comparison
-#'
-#' @param plots List of protein plots
-#'
-#' @return A single plot for which all plots are combine together
-#'
-#' @import cowplot
-#'
-#' @examples
-#' xmls <- getProteinRemote(c("Q04206.xml", "Q9D270.xml"))
-#' features <- getFeatureList(xmls)
-#' data <- featuresToDataFrame(features)
-#' plots <- drawPlot(data)
-#' plots <- drawMotifs(plots, data)
-#' plotProteins(plots)
-#'
-#' @export
-plotProteins <- function(plots){
-  cowplot::plot_grid(plotlist=plots)
+  if(!is.null(postDraw)) postDraw()
+
+  return(figure)
 }
+
+source("R/dataRetrieval.R")
+source("R/dataParsing.R")
+drawProtein(
+  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
+  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+  dess = list(type = "phos", colors = "blue"),
+  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
+  singleOffset = 2,
+  saveGlobal = TRUE
+)
+
+#todo restructure
+#todo kinds of things that xml and features can give >>sequence [[1]] // text
+#todo make event handler
+#todo make download thing
