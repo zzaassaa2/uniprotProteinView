@@ -1,4 +1,4 @@
-getProtein <- function(source){#todo make download option
+getProtein <- function(source){
   out <- vector(mode = "list", length = length(source))
 
   print("Loading proteins")
@@ -37,15 +37,25 @@ getProtein <- function(source){#todo make download option
     }else if(file.exists(str)){
       out[i] <- getLocal(str)
     }else{
-      out[i] <- getRemote(str)
+      if(endsWith(str, ".xml")){
+        print(paste0("Failed to find file:", str, ". Would you like to attempt to download the file?"))
+        print("Enter 1 for yes, 2 for no and skip this file, 3 to force terminate process.")
+        get <- readline("Command: ")
+        if(get == 1){
+          out[i] <- getRemoteDownload(str)
+        }else if(get == 3){
+          stop("Forced termination as user requested")
+        }
+      }else{
+        out[i] <- getRemote(str)
+      }
     }
 
     setTxtProgressBar(pb, i)
   }
   cat("\n")#done to make any text after progress bar on proper line
 
-
-  return(out)
+  return(out[lengths(out) != 0])
 }
 
 getLocal <- function(source){
@@ -77,9 +87,6 @@ getRemote <- function(source, url = paste0(paste0("https://www.uniprot.org/unipr
 }
 
 getRemoteDownload <- function(source){
-  if(!endsWith(source, ".xml")){
-    source <- paste0(source, ".xml")
-  }
   download.file(paste0("https://www.uniprot.org/uniprot/",source), source)
   getLocal(source)
 }

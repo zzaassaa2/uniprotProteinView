@@ -157,7 +157,5 @@ drawProtein(
   saveGlobal = TRUE
 )
 
-#todo restructure
 #todo kinds of things that xml and features can give >>sequence [[1]] // text
 #todo make event handler
-#todo make download thing
