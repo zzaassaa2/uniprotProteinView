@@ -64,7 +64,7 @@ setUp <- function (env, proteins, saveGlobal){
     .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
   }else{
     env$uniProtProteinView_xmls <- env$xml
-    env$uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
+    env$uniProtProteinView_data <- getFeaturesDataFrame(env$uniProtProteinView_xmls)
   }
 
   env$figure <- plotly::plot_ly(type = "scatter", mode = "lines")
@@ -143,16 +143,16 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
   return(figure)
 }
 
-#source("R/dataRetrieval.R")
-#source("R/dataParsing.R")
-#drawProtein(
-#  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
-#  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-#  dess = list(type = "phos", colors = "blue"),
-#  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
-#  singleOffset = 2,
-#  saveGlobal = TRUE
-#)
+source("R/dataRetrieval.R")
+source("R/dataParsing.R")
+drawProtein(
+  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
+  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+  dess = list(type = "phos", colors = "blue"),
+  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
+  singleOffset = 2,
+  saveGlobal = FALSE
+)
 #preDraw = NULL, preChain = NULL, postChain = NULL,
 #featureDraw = NULL, gapDraw = NULL, postDraw = NULL
 
