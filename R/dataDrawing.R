@@ -57,23 +57,23 @@ ifelse <- function (condition, true, false){
   }
 }
 
-setUp <- function (env, proteins, saveGlobal){
-  warning("called")
-  env$xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source), getProtein(proteins))
-  if(saveGlobal){
-    .GlobalEnv$uniProtProteinView_xmls <- env$xml
-    .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(.GlobalEnv$uniProtProteinView_xmls)
-  }else{
-    env$uniProtProteinView_xmls <- env$xml
-    print("called2")
-    print(env$xml)
-    env$uniProtProteinView_data <- getFeaturesDataFrame(env$uniProtProteinView_xmls)
-  }
-
-  env$figure <- plotly::plot_ly(type = "scatter", mode = "lines")
-  env$colors <- ifelse("colors" %in% names(proteins), proteins$colors, NULL)
-  env$yStart <- 0
-}
+#setUp <- function (env, proteins, saveGlobal){
+#  warning("called")
+#  env$xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source), getProtein(proteins))
+#  if(saveGlobal){
+#    .GlobalEnv$uniProtProteinView_xmls <- env$xml
+#    .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(.GlobalEnv$uniProtProteinView_xmls)
+#  }else{
+#    env$uniProtProteinView_xmls <- env$xml
+#    print("called2")
+#    print(env$xml)
+#    env$uniProtProteinView_data <- getFeaturesDataFrame(env$uniProtProteinView_xmls)
+#  }
+#
+#  env$figure <- plotly::plot_ly(type = "scatter", mode = "lines")
+#  env$colors <- ifelse("colors" %in% names(proteins), proteins$colors, NULL)
+#  env$yStart <- 0
+#}
 
 draw <- function (env, d, figure, colors, i, types, dess, structure, yStart, btwnSpacingStart, btwnSpacing, singleOffset,
                   preChain, postChain, featureDraw, gapDraw){
@@ -121,9 +121,9 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
     uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
   }
 
-  env$figure <- plotly::plot_ly(type = "scatter", mode = "lines")
-  env$colors <- ifelse("colors" %in% names(proteins), proteins$colors, NULL)
-  env$yStart <- 0
+  figure <- plotly::plot_ly(type = "scatter", mode = "lines")
+  colors <- ifelse("colors" %in% names(proteins), proteins$colors, NULL)
+  yStart <- 0
 
   if(!is.null(preDraw)) preDraw(environment)
 
