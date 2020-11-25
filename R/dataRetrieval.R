@@ -1,4 +1,4 @@
-getProtein <- function(source){#list.files("temp", pattern="*.csv", full.names=TRUE)
+getProtein <- function(source){
   out <- vector(mode = "list", length = length(source))
 
   print("Loading proteins")
@@ -34,6 +34,13 @@ getProtein <- function(source){#list.files("temp", pattern="*.csv", full.names=T
       }else{
         out[i] <- getRandomProtein(orgID = orgid)
       }
+    }else if(dir.exists(str)){
+      found <- list.files(str, pattern = "*.xml", full.names = TRUE)
+      k <- length(out) + length(found) - 1
+      out <- out[1:k]
+      for(j in seq_along(found)){
+        out[i + j - 1] <- getLocal(found[[j]])
+      }
     }else if(file.exists(str)){
       out[i] <- getLocal(str)
     }else{
@@ -59,7 +66,13 @@ getProtein <- function(source){#list.files("temp", pattern="*.csv", full.names=T
 }
 
 getLocal <- function(source){
-  list(XML::xmlToList(XML::xmlParse(source))[["entry"]])
+  xml <- XML::xmlToList(XML::xmlParse(source))
+  if("entry" %in% names(xml)){
+    return(list(xml[["entry"]]))
+  }else{
+    warning(paste0("Attempted to load file:", source, ", however the file isn't in the proper format"))
+  }
+  NULL
 }
 getRemote <- function(source, url = paste0(paste0("https://www.uniprot.org/uniprot/", source), ".xml")){
   get <- httr::GET(url)
