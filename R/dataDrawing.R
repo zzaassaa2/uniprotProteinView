@@ -111,7 +111,19 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
                         featureDraw = NULL, gapDraw = NULL, postDraw = NULL
 ){
   environment <- environment()
-  setUp(environment, proteins, saveGlobal)
+  #setUp(environment, proteins, saveGlobal)
+  xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source), getProtein(proteins))
+  if(saveGlobal){
+    .GlobalEnv$uniProtProteinView_xmls <- xml
+    .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
+  }else{
+    uniProtProteinView_xmls <- xml
+    uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
+  }
+
+  env$figure <- plotly::plot_ly(type = "scatter", mode = "lines")
+  env$colors <- ifelse("colors" %in% names(proteins), proteins$colors, NULL)
+  env$yStart <- 0
 
   if(!is.null(preDraw)) preDraw(environment)
 
