@@ -58,7 +58,7 @@ ifelse <- function (condition, true, false){
 }
 
 setUp <- function (env, proteins, saveGlobal){
-  print("called")
+  warning("called")
   env$xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source), getProtein(proteins))
   if(saveGlobal){
     .GlobalEnv$uniProtProteinView_xmls <- env$xml
