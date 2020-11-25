@@ -74,35 +74,32 @@ setUp <- function (env, proteins, saveGlobal){
 
 draw <- function (env, d, figure, colors, i, types, dess, structure, yStart, btwnSpacingStart, btwnSpacing, singleOffset,
                   preChain, postChain, featureDraw, gapDraw){
-  if(!is.null(preChain)) preChain()
+  chdEnv <- environment()
+  if(!is.null(preChain)) preChain(env, chdEnv)
 
   clr <- ifelse(i <= length(colors), colors[[i]], randomColor())
   figure <- drawFeature(figure, d, list(colors = clr), function (type) d$type == "chain", yStart, yStop = yStart + 1)$figure
 
-  if(!is.null(postChain)) postChain()
+  if(!is.null(postChain)) postChain(env, chdEnv)
 
   figure <- drawFeature(figure, d, types, function(type) d$type == type, yStart, yStop = yStart + 1)$figure
   figure <- drawFeature(figure, d, dess, function(type) grepl(type, d$description, fixed = TRUE), yStart, yStop = yStart + 1, offset = singleOffset)$figure
 
-  if(!is.null(featureDraw)) figure <- featureDraw(figure)
+  if(!is.null(featureDraw)) featureDraw(env, chdEnv)
 
   f <- drawFeature(figure, d, structure, function (type) d$type == type, yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
   figure <- f$figure
   env$actionPreformed <- f$actionPreformed
 
-  if(!is.null(gapDraw)){
-    k <- gapDraw(figure)
-
-    if(is.list(k) && "figure" %in% names(k) && "actionPreformed" %in% names(k)){
-      env$actionPreformed <- env$actionPreformed || k$actionPreformed
-    }else{
-      warning("An event for the gapDraw function was provided, but ignored due to improper format, consult vignettes for proper format")#todo change this after renaming
-    }
-  }
+  if(!is.null(gapDraw)) gapDraw(env, chdEnv)
 
   figure
 }
 
+#'@import httr
+#' @import XML
+#' @import plotly
+#' @export
 drawProtein <- function(proteins, types = list(), dess = list(), structure = list(), singleOffset = 1, title = NULL, saveGlobal = FALSE,
                         btwnSpacingStart = 1, btwnSpacing = 0.3,
                         preDraw = NULL, preChain = NULL, postChain = NULL,
@@ -111,7 +108,7 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
   environment <- environment()
   setUp(environment, proteins, saveGlobal)
 
-  if(!is.null(preDraw)) preDraw()
+  if(!is.null(preDraw)) preDraw(environment)
 
   for(i in seq_along(uniProtProteinView_data)){
     d <- uniProtProteinView_data[[i]]
@@ -141,21 +138,26 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
                            yaxis = list(showgrid = FALSE, tickvals = NULL)
   )
 
-  if(!is.null(postDraw)) postDraw()
+  if(!is.null(postDraw)) postDraw(environment)
 
   return(figure)
 }
 
-source("R/dataRetrieval.R")
-source("R/dataParsing.R")
-drawProtein(
-  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
-  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-  dess = list(type = "phos", colors = "blue"),
-  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
-  singleOffset = 2,
-  saveGlobal = TRUE
-)
+#source("R/dataRetrieval.R")
+#source("R/dataParsing.R")
+#drawProtein(
+#  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
+#  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+#  dess = list(type = "phos", colors = "blue"),
+#  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
+#  singleOffset = 2,
+#  saveGlobal = TRUE
+#)
+#preDraw = NULL, preChain = NULL, postChain = NULL,
+#featureDraw = NULL, gapDraw = NULL, postDraw = NULL
 
-#todo kinds of things that xml and features can give >>sequence [[1]] // text
-#todo make event handler
+
+
+#todo folder load
+#todo preformace
+#todo shiny app, make sure function begins with run   >>use library(shiny)
