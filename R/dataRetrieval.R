@@ -1,13 +1,15 @@
-getProtein <- function(source){
+getProtein <- function(source, showProgress){
   out <- vector(mode = "list", length = length(source))
 
-  print("Loading proteins")
-  pb <- txtProgressBar(min = 0,
-                       max = length(source),
-                       style = 3,#1-3
-                       width = 50,
-                       char = "="
-  )
+  if(showProgress){
+    print("Loading proteins")
+    pb <- txtProgressBar(min = 0,
+                         max = length(source),
+                         style = 3,#1-3
+                         width = 50,
+                         char = "="
+    )
+  }
 
   for(i in seq_along(source)){
     s <- source[[i]]
@@ -58,9 +60,13 @@ getProtein <- function(source){
       }
     }
 
-    setTxtProgressBar(pb, i)
+    if(showProgress){
+      setTxtProgressBar(pb, i)
+    }
   }
-  cat("\n")#done to make any text after progress bar on proper line
+  if(showProgress){
+    cat("\n")#done to make any text after progress bar on proper line
+  }
 
   return(out[lengths(out) != 0])
 }
@@ -74,6 +80,7 @@ getLocal <- function(source){
   }
   NULL
 }
+
 getRemote <- function(source, url = paste0(paste0("https://www.uniprot.org/uniprot/", source), ".xml")){
   get <- httr::GET(url)
   code <- httr::status_code(get)

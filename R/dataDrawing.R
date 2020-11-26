@@ -57,8 +57,8 @@ ifelse <- function (condition, true, false){
   }
 }
 
-setUp <- function (env, proteins, saveGlobal){
-  env$xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source), getProtein(proteins))
+setUp <- function (env, proteins, saveGlobal, showProgress){
+  env$xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source, showProgress), getProtein(proteins, showProgress))
   if(saveGlobal){
     .GlobalEnv$uniProtProteinView_xmls <- env$xml
     .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(.GlobalEnv$uniProtProteinView_xmls)
@@ -72,26 +72,17 @@ setUp <- function (env, proteins, saveGlobal){
   env$yStart <- 0
 }
 
-draw <- function (env, d, figure, colors, i, types, dess, structure, yStart, btwnSpacingStart, btwnSpacing, singleOffset,
-                  preChain, postChain, featureDraw, gapDraw){
-  chdEnv <- environment()
-  if(!is.null(preChain)) preChain(env, chdEnv)
+draw <- function (env, d, figure, colors, i, types, dess, structure, yStart, btwnSpacingStart, btwnSpacing, singleOffset){
 
   clr <- ifelse(i <= length(colors), colors[[i]], randomColor())
   figure <- drawFeature(figure, d, list(colors = clr), function (type) d$type == "chain", yStart, yStop = yStart + 1)$figure
 
-  if(!is.null(postChain)) postChain(env, chdEnv)
-
   figure <- drawFeature(figure, d, types, function(type) d$type == type, yStart, yStop = yStart + 1)$figure
   figure <- drawFeature(figure, d, dess, function(type) grepl(type, d$description, fixed = TRUE), yStart, yStop = yStart + 1, offset = singleOffset)$figure
-
-  if(!is.null(featureDraw)) featureDraw(env, chdEnv)
 
   f <- drawFeature(figure, d, structure, function (type) d$type == type, yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
   figure <- f$figure
   env$actionPreformed <- f$actionPreformed
-
-  if(!is.null(gapDraw)) gapDraw(env, chdEnv)
 
   figure
 }
@@ -101,20 +92,14 @@ draw <- function (env, d, figure, colors, i, types, dess, structure, yStart, btw
 #'
 #' @export
 drawProtein <- function(proteins, types = list(), dess = list(), structure = list(), singleOffset = 1, title = NULL, saveGlobal = FALSE,
-                        btwnSpacingStart = 1, btwnSpacing = 0.3,
-                        preDraw = NULL, preChain = NULL, postChain = NULL,
-                        featureDraw = NULL, gapDraw = NULL, postDraw = NULL
-){
+                        btwnSpacingStart = 1, btwnSpacing = 0.3, showProgress = TRUE){
   environment <- environment()
-  setUp(environment, proteins, saveGlobal)
-
-  if(!is.null(preDraw)) preDraw(environment)
+  setUp(environment, proteins, saveGlobal, showProgress)
 
   for(i in seq_along(uniProtProteinView_data)){
     d <- uniProtProteinView_data[[i]]
 
-    figure <- draw(environment, d, figure, colors, i, types, dess, structure, yStart, btwnSpacingStart, btwnSpacing, singleOffset,
-                   preChain, postChain, featureDraw, gapDraw)
+    figure <- draw(environment, d, figure, colors, i, types, dess, structure, yStart, btwnSpacingStart, btwnSpacing, singleOffset)
 
     figure <- plotly::layout(figure,
                              annotations = list(
@@ -138,30 +123,19 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
                            yaxis = list(showgrid = FALSE, tickvals = NULL)
   )
 
-  if(!is.null(postDraw)) postDraw(environment)
-
   return(figure)
 }
 
 
 
-#source("R/dataRetrieval.R")
-#source("R/dataParse.R")
-#drawProtein(
-#  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
-#  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-#  dess = list(type = "phos", colors = "blue"),
-#  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
-#  singleOffset = 2,
-#  saveGlobal = TRUE
-#)
+source("R/dataRetrieval.R")
+source("R/dataParse.R")
+drawProtein(
+  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
+  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+  dess = list(type = "phos", colors = "blue"),
+  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
+  singleOffset = 2,
+  saveGlobal = TRUE
+)
 
-
-#preDraw = NULL, preChain = NULL, postChain = NULL,
-#featureDraw = NULL, gapDraw = NULL, postDraw = NULL
-
-
-
-#todo preformace
-#todo second sequence thing
-#k <- list(...)
