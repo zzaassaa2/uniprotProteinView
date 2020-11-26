@@ -3,11 +3,6 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-!!!!!NOTE: if you are one of the reviewers for this package, I noticed only one person has done it so far, thus if you are trying to submit a review, look at the 0.1.0 branch, this current one is in dev and unstable.
-
-
-
-
 The goal of uniprotProteinView is to provide a means to show a graphical representation of the UniProt data as well as allow easy cross comparison of features between different proteins for easy analysis of protein features.
 
 ## Installation
@@ -22,22 +17,56 @@ library("uniprotProteinView")
 
 ## Overview
 
+The uniprotProteinView package provides a single function called `drawProtein`. To see further documentation, use:
+
 ``` r
 ls("package:uniprotProteinView")
 ```
 
-The uniprotProteinView package provides a variety of functions, separated into three main branches: Retrieval of data and parsing xml, parsing xml data into dataFrames and into feature lists, and drawing of data onto one or more plots.
-For more information, refer to package vignettes.
+To view an interactive shiny app, you can visit the webpage:
+
+TODO
+
+Otherwise the most simple usage of the function `drawProtein` is to supply it with a protein key_code, this can be found from the Uniprot webpage at https://www.uniprot.org/
+Once there, search for your protein and get the protein key_code
+
+![](inst/extdata/uniprot_find_code.png)
+
+This code can then be used as shown below, for example purpose, we will use human transcription factor p65, with code Q04206.
+
+```r
+uniprotProteinView::drawProtein("Q04206")
+```
+
+![](inst/extdata/readme_example1.png)
+
+Here the function will search the Uniprot database for the protein, and then draw the main chain. Further details about the structure can be added, for further information look through the vignettes:
 
 ``` r
 browseVignettes("uniprotProteinView")
 ```
 
+An example of a more advance usage, using two proteins is such:
+
+```r
+drawProtein(
+  proteins = list(source = c("Q04206", "Q9D270"), colors = c("green", "green")),
+  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+  dess = list(type = "phos", colors = "blue"),
+  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
+  singleOffset = 2
+)
+```
+
+![](inst/extdata/readme_example2.png)
+
 ## Contributions
 
-The author of the package is George Zorn. The xml retrieval functions make use of the `XML` and `httr` R packages for xml parsing and data retrieval, respectively, with the *getProteinRemoteD* function also making use of the `stringr` R package. The plot drawing functions make use of the `ggplot2` R package in order to draw and label the plot. The *plotProteins* function makes use of the R package `cowplot` in order to draw multiple plots on the same window.
+The author of the package is George Zorn. The xml retrieval functions make use of the `XML` and `httr` R packages for xml parsing and data retrieval, respectively. The plot drawing functions make use of the `plotly` R package in order to draw and label the plot. The package also TODO-shiny
 
 ## References
+
+TODO
 
 Wickham, H. and Bryan, J. (2019). R Packages (2nd edition). Newton, Massachusetts: O’Reilly Media. https://r-pkgs.org/
 
@@ -46,18 +75,3 @@ The UniProt Consortium. UniProt: a worldwide hub of protein knowledge. Nucleic A
 ## Acknowledgements
 
 This package was developed as part of an assessment for 2020BCB410H: Applied Bioinformatics, University of Toronto, Toronto,CANADA.
-
-## Example
-
-``` r
-    xmls <- getProteinRemote(c("Q04206", "Q9D270"))
-    features <- getFeatureList(xmls)
-    data <- featuresToDataFrame(features)
-    plots <- drawPlot(data)
-    plots <- elementIfMatch(plots, data, "chain")
-    plots <- drawDomains(plots, data)
-    plots <- drawBetaStrands(plots, data)
-    plotProteins(plots)
-```
-
-![](inst/extdata/Rplot01.png)

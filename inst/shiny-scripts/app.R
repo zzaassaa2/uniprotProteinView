@@ -1,8 +1,7 @@
-source("R/dataRetrieval.R")
-source("R/dataParse.R")
-source("R/dataDrawing.R")
+source("../../R/dataRetrieval.R")
+source("../../R/dataParse.R")
+source("../../R/dataDrawing.R")
 library("shiny")
-
 
 ui <- fluidPage(
               fileInput(inputId = "file", label = "test"),
@@ -36,9 +35,11 @@ server <- function (input, output){
     }
   })
 }
+#XML::isXMLString()
 shiny::shinyApp(ui, server)
 #todo show progress in app, and remove from logs
 #todo make selectable
+#todo make not file select, as would be serverside, so just use code and get from uniprot servers
 
 
 
