@@ -1,0 +1,54 @@
+---
+title: "Introduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(uniprotProteinView)
+```
+
+# Overview
+
+This package provides the user the means to plot proteins with specified features plotted out, as provided from the UniProt API. There are two functions exported from this package: `drawProtein()` and `runUniprotProteinView()`. The former is the main drawing function, while the later is used to start a shiny app. The user can also view the shiny app for this package at XXXXXXXXXXXXX TODO.
+
+# Run Shiny App
+
+The Shiny app provides an interactive means to use the graph, viewable by either using the website: xxxxxxxxxx todo, or running:
+
+```{}
+uniprotProteinView::runUniprotProteinView()
+```
+
+# Draw Proteins
+
+The simplest usage of the `drawProtein()` function is to provide it a string of the UniProt protein ID, that can be found at https://www.uniprot.org/ where the user can then find their desired protein, and get the protein key_code
+
+![](inst/extdata/uniprot_find_code.png)
+
+This code can then be used as shown below, for example purpose, we will use human transcription factor p65, with code Q04206.
+
+```{eval=TRUE, echo=TRUE}
+uniprotProteinView::drawProtein("Q04206")
+```
+
+Multiple proteins can be viewed at the same time using either a vector or list
+
+```{eval=TRUE, echo=TRUE}
+#These two function will respond the same way
+
+uniprotProteinView::drawProtein(c("Q04206", "Q9D270"))#Using a vector
+
+uniprotProteinView::drawProtein(list("Q04206", "Q9D270"))#Using a list
+```
+

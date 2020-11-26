@@ -1,10 +1,11 @@
-source("../../R/dataRetrieval.R")
-source("../../R/dataParse.R")
-source("../../R/dataDrawing.R")
+source("R/dataRetrieval.R")
+source("R/dataParse.R")
+source("R/dataDrawing.R")
 library("shiny")
 
 ui <- fluidPage(
-              fileInput(inputId = "file", label = "test"),
+              textInput(inputId = "file", label = "test"),
+              actionButton("do", "Click Me"),
               uiOutput("checkbox"),
               plotly::plotlyOutput("graph")
 )
@@ -12,21 +13,17 @@ ui <- fluidPage(
 server <- function (input, output){
   rv <- reactiveValues(choice = NULL)
 
-  observeEvent(input$file, {
-    rv$choice <- rbind(rv$choice, input$file)
+  observeEvent(input$do, {
+    rv$choice <- append(rv$choice, input$file)
   })
 
   output$checkbox <- renderUI({
-    checkboxGroupInput("checkbox", "label", choices = rv$choice[,"name"])
+    checkboxGroupInput("checkbox", "label", choices = rv$choice)
   })
 
   output$graph <- plotly::renderPlotly({
-    if(!is.null(rv$choice)){
-      m <- vector(mode = "list", length = nrow(rv$choice))
-      for(i in seq_len(nrow(rv$choice))){
-        m[i] <- rv$choice[i,]$datapath
-      }
-      drawProtein(m,
+    if(length(rv$choice) > 0){
+      drawProtein(rv$choice,
                   types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
                   dess = list(type = "phos", colors = "blue"),
                   structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
@@ -39,7 +36,7 @@ server <- function (input, output){
 shiny::shinyApp(ui, server)
 #todo show progress in app, and remove from logs
 #todo make selectable
-#todo make not file select, as would be serverside, so just use code and get from uniprot servers
+#todo make file issue
 
 
 

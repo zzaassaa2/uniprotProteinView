@@ -156,10 +156,12 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
 #  saveGlobal = TRUE
 #)
 
+
 #preDraw = NULL, preChain = NULL, postChain = NULL,
 #featureDraw = NULL, gapDraw = NULL, postDraw = NULL
 
 
 
 #todo preformace
+#todo second sequence thing
 #k <- list(...)
