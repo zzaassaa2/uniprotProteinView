@@ -3,6 +3,11 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
+!!!!!NOTE: if you are one of the reviewers for this package, I noticed only one person has done it so far, thus if you are trying to submit a review, look at the 0.1.0 branch, this current one is in dev and unstable.
+
+
+
+
 The goal of uniprotProteinView is to provide a means to show a graphical representation of the UniProt data as well as allow easy cross comparison of features between different proteins for easy analysis of protein features.
 
 ## Installation

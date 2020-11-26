@@ -162,3 +162,4 @@ drawProtein(
 
 
 #todo preformace
+#k <- list(...)
