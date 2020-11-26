@@ -145,16 +145,16 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
 
 
 
-source("R/dataRetrieval.R")
-source("R/dataParse.R")
-drawProtein(
-  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
-  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-  dess = list(type = "phos", colors = "blue"),
-  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
-  singleOffset = 2,
-  saveGlobal = TRUE
-)
+#source("R/dataRetrieval.R")
+#source("R/dataParse.R")
+#drawProtein(
+#  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
+#  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+#  dess = list(type = "phos", colors = "blue"),
+#  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
+#  singleOffset = 2,
+#  saveGlobal = TRUE
+#)
 
 #preDraw = NULL, preChain = NULL, postChain = NULL,
 #featureDraw = NULL, gapDraw = NULL, postDraw = NULL
