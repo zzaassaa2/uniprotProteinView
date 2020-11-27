@@ -5,6 +5,6 @@ account: zzaassaa2
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3308633
-bundleId: 3911007
+bundleId: 3911031
 url: https://zzaassaa2.shinyapps.io/proteinView/
-when: 1606445135.0018
+when: 1606445828.24128

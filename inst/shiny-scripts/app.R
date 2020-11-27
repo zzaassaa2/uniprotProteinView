@@ -2,10 +2,6 @@
 #source("R/dataParse.R")
 #source("R/dataDrawing.R")
 library("shiny")
-library("uniprotProteinView")
-library("XML")
-library("httr")
-library("plotly")
 
 ui <- shiny::fluidPage(
   shiny::textInput(inputId = "file", label = "test"),
