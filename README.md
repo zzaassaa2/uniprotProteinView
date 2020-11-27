@@ -30,7 +30,7 @@ ls("package:uniprotProteinView")
 
 To view an interactive shiny app, you can visit the webpage:
 
-TODO
+[Shiny App](https://zzaassaa2.shinyapps.io/proteinView/)
 
 Otherwise the most simple usage of the function `drawProtein` is to
 supply it with a protein key\_code, this can be found from the Uniprot

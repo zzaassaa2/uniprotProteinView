@@ -3,3 +3,5 @@
 ^README\.Rmd$
 ^todo.txt
 ^.idea$
+^.*\.Rproj$
+^\.Rproj\.user$
