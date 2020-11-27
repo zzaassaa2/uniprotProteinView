@@ -1,7 +1,11 @@
 #source("R/dataRetrieval.R")
 #source("R/dataParse.R")
 #source("R/dataDrawing.R")
-#library("shiny")
+library("shiny")
+library("uniprotProteinView")
+library("XML")
+library("httr")
+library("plotly")
 
 ui <- shiny::fluidPage(
   shiny::textInput(inputId = "file", label = "test"),
@@ -27,7 +31,6 @@ server <- function (input, output){
                   types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
                   dess = list(type = "phos", colors = "blue"),
                   structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
-                  singleOffset = 2,
                   showProgress = FALSE
       )
     }, error = function (cond){
@@ -39,7 +42,7 @@ server <- function (input, output){
   })
 }
 
-shiny::shinyApp(ui, server
+shiny::shinyApp(ui, server)
 #todo show progress in app
 #todo make selectable
 

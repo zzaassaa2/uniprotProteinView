@@ -1,3 +1,17 @@
+#' INTERNAL FUNCTION: Creates Dataframe for features
+#'
+#' Cycles through all proteins and for each, finds all entries called
+#' "features", then addes them to a dataframe for each protein and combines
+#' all dataframes into a list
+#'
+#' @param xmls List of parsed XMLs for each protein
+#'
+#' @return List of dataframes for each protein's XML data
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
 getFeaturesDataFrame <- function(xmls){
   featuresList <- recursiveElementSearch(xmls, "feature")
   out <- vector(mode = "list", length = length(featuresList))
@@ -34,6 +48,18 @@ getFeaturesDataFrame <- function(xmls){
   return(out)
 }
 
+#' INTERNAL FUNCTION: Recursivly search for element in list
+#'
+#' Will recursivly search through input list, till finds first level that contains
+#' at least one entry that matches name parameter
+#'
+#' @param listIn The list for which to search through
+#'
+#' @param name Name condition to which to compare all list names to match
+#'
+#' @return List of all elements found at first level (not exhaustive)
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 recursiveElementSearch <- function(listIn, name){
   out <- listIn[grepl(name, names(listIn))]
   if(length(out) == 0){

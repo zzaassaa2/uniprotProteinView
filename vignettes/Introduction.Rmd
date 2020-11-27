@@ -38,13 +38,15 @@ The simplest usage of the `drawProtein()` function is to provide it a string of 
 
 This code can then be used as shown below, for example purpose, we will use human transcription factor p65, with code Q04206.
 
-```{eval=TRUE, echo=TRUE}
+testse
+
+```{}
 uniprotProteinView::drawProtein("Q04206")
 ```
 
 Multiple proteins can be viewed at the same time using either a vector or list
 
-```{eval=TRUE, echo=TRUE}
+```{}
 #These two function will respond the same way
 
 uniprotProteinView::drawProtein(c("Q04206", "Q9D270"))#Using a vector

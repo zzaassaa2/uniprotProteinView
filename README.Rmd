@@ -43,15 +43,15 @@ TODO
 Otherwise the most simple usage of the function `drawProtein` is to supply it with a protein key_code, this can be found from the Uniprot webpage at [UniProt](https://www.uniprot.org/)
 Once there, search for your protein and get the protein key_code
 
-![](inst/extdata/uniprot_find_code.png)
+TODO picture
 
 This code can then be used as shown below, for example purpose, we will use human transcription factor p65, with code Q04206.
 
-```{r example}
+```r
 uniprotProteinView::drawProtein("Q04206")
 ```
 
-![](inst/extdata/readme_example1.png)
+TODO picture
 
 Here the function will search the Uniprot database for the protein, and then draw the main chain. Further details about the structure can be added, for further information look through the vignettes:
 
@@ -61,8 +61,8 @@ browseVignettes("uniprotProteinView")
 
 An example of a more advance usage, using two proteins is such:
 
-```{r example1}
-drawProtein(
+```r
+uniprotProteinView::drawProtein(
   proteins = list(source = c("Q04206", "Q9D270"), colors = c("green", "green")),
   types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
   dess = list(type = "phos", colors = "blue"),
@@ -71,7 +71,7 @@ drawProtein(
 )
 ```
 
-![](inst/extdata/readme_example2.png)
+TODO picture
 
 # Contributions
 

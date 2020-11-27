@@ -1,3 +1,25 @@
+#' INTERNAL FUNCTION: Get protein XML data
+#'
+#' Searches through list or vector of entries and attempts to retrieve UniProt protein
+#' XML data. This can be done by either .xml entry for local files, where if none are found,
+#' will ask if the user either want to skip or download the file and load that. Otherwise, the
+#' user can specify a UniProt protein key_code where the function will then attempt to read
+#' the XML data from the webpage. Alternativly, the user can use "random" to randomly pick
+#' a protein.
+#'
+#' @param source List of entries for which to attempt to load
+#'
+#' @param showProgress If the user should be notified on the progress of this function
+#'
+#' @return List for each loaded protein, each element containing a list of XML data
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
+#'
+#' @import XML
+#' @importFrom utils setTxtProgressBar txtProgressBar
 getProtein <- function(source, showProgress){
   out <- vector(mode = "list", length = length(source))
 
@@ -71,6 +93,18 @@ getProtein <- function(source, showProgress){
   return(out[lengths(out) != 0])
 }
 
+#' INTERNAL FUNCTION: Loads the source from local .xml file
+#'
+#' @param source .xml file to load
+#'
+#' @return If successful, will return a list of XML data
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
+#'
+#' @import XML
 getLocal <- function(source){
   xml <- XML::xmlToList(XML::xmlParse(source))
   if("entry" %in% names(xml)){
@@ -81,6 +115,23 @@ getLocal <- function(source){
   NULL
 }
 
+#' INTERNAL FUNCTION: Load source remotly
+#'
+#' Will attempt to see if the source is a valid uniprot page. Will return a status_code to
+#' determine if successful, and if so, parse XML data
+#'
+#' @param source Protein UniProt keycode
+#'
+#' @param url URL to search for the protein and laod XML data
+#'
+#' @return List of XML data
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
+#'
+#' @import httr XML
 getRemote <- function(source, url = paste0(paste0("https://www.uniprot.org/uniprot/", source), ".xml")){
   get <- httr::GET(url)
   code <- httr::status_code(get)
@@ -106,11 +157,38 @@ getRemote <- function(source, url = paste0(paste0("https://www.uniprot.org/unipr
   return(list())
 }
 
+#' INTERNAL FUNCTION: Download the file and then load locally
+#'
+#' @param source UniProt key_code.xml to try and download .xml file
+#'
+#' @return Returns list of XML data
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
+#'
+#' @importFrom utils download.file
 getRemoteDownload <- function(source){
   download.file(paste0("https://www.uniprot.org/uniprot/",source), source)
   getLocal(source)
 }
 
+#' INTERNAL FUNCTION: Randomly picks a protein to load
+#'
+#' Will use UniProts internal API function to find a random protein using the specified
+#' organism ID
+#'
+#' @param orgID Organism id that UniProt uses for organism registration
+#'
+#' @return List of parsed XML data
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
+#'
+#' @import httr
 getRandomProtein <- function(orgID){
   k <- httr::GET(paste0("https://www.uniprot.org/uniprot/?query=reviewed:yes+AND+organism:",orgID,"&random=yes"))
   getRemote(url = paste0(k$url, ".xml"))

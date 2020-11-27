@@ -4,7 +4,7 @@ citEntry(
   entry        = "Unpublished",
   title        = "uniprotProteinView",
   author       = "George Zorn",
-  note         = "Unpublished"
+  note         = "Unpublished",
   year         = "2020",
   textVersion  = paste(
     "Zorn, G. (2020) uniprotProteinView. Unpublished. URL https://github.com/zzaassaa2/uniprotProteinView"

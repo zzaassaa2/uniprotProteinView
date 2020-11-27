@@ -1,7 +1,14 @@
-
+#' Creates Shiny app
 #'
-#' @import shiny plotly httr XML
+#' Will create an interactive shiny app with imbeded plotly figure
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
+#'
 #' @export
+#' @import shiny
 runUniprotProteinDraw <- function() {
   #appDir <- system.file("shiny-scripts",
   #                      package = "MPLNClust")
@@ -9,5 +16,4 @@ runUniprotProteinDraw <- function() {
   return()
 }
 
-#runUniprotProteinDraw()
 
