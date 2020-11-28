@@ -122,7 +122,29 @@ getLocal <- function(source){
 #'
 #' @param source Protein UniProt keycode
 #'
-#' @param url URL to search for the protein and laod XML data
+#' @param url URL source to search
+#'
+#' @return List of XML data
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
+getRemote <- function(source, url = paste0(paste0("https://www.uniprot.org/uniprot/", source), ".xml")){
+  confirmStatus(source,
+                url,
+                toRunIf = function (get){
+                  return(getRemotePreApproved(get))
+                },
+                toRunElse = function (){
+                  return(list())
+                }
+                )
+}
+
+#' INTERNAL FUNCTION: Load data from prefound web source
+#'
+#' @param get Web source content obtained using the httr library
 #'
 #' @return List of XML data
 #'
@@ -131,15 +153,41 @@ getLocal <- function(source){
 #' @references
 #' TODO references
 #'
-#' @import httr XML
-getRemote <- function(source, url = paste0(paste0("https://www.uniprot.org/uniprot/", source), ".xml")){
+#' @import XML
+getRemotePreApproved <- function (get){
+  k <- XML::xmlParse(rawToChar(get$content))
+  dd <- XML::xmlToList(k, simplify = TRUE)[["entry"]]
+  return(list(dd))
+}
+
+#' Loads content is check if page is valid
+#'
+#' Will attempt to see if the source is a valid uniprot page. Will return a run functions
+#' depending if the code is valid (code == 200) or invalid
+#'
+#' @param source Protein UniProt keycode
+#'
+#' @param url URL source to search
+#'
+#' @param toRunIf Function with passed in webpage content, should the page be valid
+#'
+#' @param toRunElse Function to run should the page be invalid
+#'
+#' @return Function specific output
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
+#'
+#' @export
+#' @import httr
+confirmStatus <- function (source, url = paste0(paste0("https://www.uniprot.org/uniprot/", source), ".xml"), toRunIf, toRunElse){
   get <- httr::GET(url)
   code <- httr::status_code(get)
 
   if(code == 200){
-    k <- XML::xmlParse(rawToChar(get$content))
-    dd <- XML::xmlToList(k, simplify = TRUE)[["entry"]]
-    return(list(dd))
+    return(toRunIf(get))
   }else if(code == 400){
     warning("Bad request. There is a problem with input: ", source)
   }else if(code == 404){
@@ -154,7 +202,7 @@ getRemote <- function(source, url = paste0(paste0("https://www.uniprot.org/unipr
     warning("Unknown error return: ", code, ", using the input: ", source)
   }
 
-  return(list())
+  return(toRunElse())
 }
 
 #' INTERNAL FUNCTION: Download the file and then load locally

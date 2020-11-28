@@ -7,8 +7,8 @@
 drawProtein(
   proteins,
   types = list(),
-  dess = list(),
-  structure = list(),
+  descriptionSearch = list(),
+  offSetFeatures = list(),
   singleOffset = 1,
   title = NULL,
   saveGlobal = FALSE,
@@ -30,14 +30,14 @@ contain an element called colors that can equal a rgb() value, string of a color
 in order "random" for a random color, to specify what color the element in the same order will
 be}
 
-\item{dess}{A string, vector, list, or list with entry named "type" that is equal
+\item{descriptionSearch}{A string, vector, list, or list with entry named "type" that is equal
 to a string, vector or list containing word searches that will then be used to find any entries
 description, and if it should contain the string, will be valid. This list can also
 contain an element called colors that can equal a rgb() value, string of a color, or the word
 in order "random" for a random color, to specify what color the element in the same order will
 be}
 
-\item{structure}{A string, vector, list, or list with entry named "type" that is equal
+\item{offSetFeatures}{A string, vector, list, or list with entry named "type" that is equal
 to a string, vector or list containing valid matches to feature description names. These entries
 will normally be rendered above the protein, though this can be chaged by specifiing the parameters
 btwnSpacingStart and btwnSpacing. This list can also contain an element called colors that can

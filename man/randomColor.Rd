@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataDrawing.R
 \name{randomColor}
 \alias{randomColor}
-\title{INTERNAL FUNCTION: Get and random rgb color}
+\title{Get and random rgb color}
 \usage{
 randomColor()
 }
@@ -10,7 +10,7 @@ randomColor()
 Returns random rgb color
 }
 \description{
-INTERNAL FUNCTION: Get and random rgb color
+Get and random rgb color
 }
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}

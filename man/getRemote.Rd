@@ -12,7 +12,7 @@ getRemote(
 \arguments{
 \item{source}{Protein UniProt keycode}
 
-\item{url}{URL to search for the protein and laod XML data}
+\item{url}{URL source to search}
 }
 \value{
 List of XML data

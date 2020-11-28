@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataDrawing.R
 \name{ifelse}
 \alias{ifelse}
-\title{INTERNAL FUNCTION: If else function}
+\title{If else function}
 \usage{
 ifelse(condition, true, false)
 }

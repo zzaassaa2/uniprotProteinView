@@ -4,7 +4,16 @@
 \alias{drawFeature}
 \title{INTERNAL FUNCTION: Helper function for standardizing input for before drawing}
 \usage{
-drawFeature(figure, d, toParse, condition, yStart, yStop, offset = 0)
+drawFeature(
+  figure,
+  d,
+  toParse,
+  condition,
+  yStart,
+  yStop,
+  offset = 0,
+  indent = TRUE
+)
 }
 \arguments{
 \item{figure}{Main plotly plot/figure}
@@ -21,6 +30,8 @@ dataframe to find matchs based upon condition}
 \item{yStop}{Height element should stop drawing at}
 
 \item{offset}{Offset of where drawing on the X-axis takes place}
+
+\item{indent}{If the input should be indented, used to indent features of a protein}
 }
 \value{
 Returns figure will all matching features drawn on

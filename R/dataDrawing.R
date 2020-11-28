@@ -16,14 +16,14 @@
 #' contain an element called colors that can equal a rgb() value, string of a color, or the word
 #' in order "random" for a random color, to specify what color the element in the same order will
 #' be
-#' @param dess A string, vector, list, or list with entry named "type" that is equal
+#' @param descriptionSearch A string, vector, list, or list with entry named "type" that is equal
 #' to a string, vector or list containing word searches that will then be used to find any entries
 #' description, and if it should contain the string, will be valid. This list can also
 #' contain an element called colors that can equal a rgb() value, string of a color, or the word
 #' in order "random" for a random color, to specify what color the element in the same order will
 #' be
 #'
-#' @param structure A string, vector, list, or list with entry named "type" that is equal
+#' @param offSetFeatures A string, vector, list, or list with entry named "type" that is equal
 #' to a string, vector or list containing valid matches to feature description names. These entries
 #' will normally be rendered above the protein, though this can be chaged by specifiing the parameters
 #' btwnSpacingStart and btwnSpacing. This list can also contain an element called colors that can
@@ -57,31 +57,44 @@
 #'
 #' @export
 #' @import plotly
-drawProtein <- function(proteins, types = list(), dess = list(), structure = list(), singleOffset = 1, title = NULL, saveGlobal = FALSE,
+drawProtein <- function(proteins, types = list(), descriptionSearch = list(), offSetFeatures = list(), singleOffset = 1, title = NULL, saveGlobal = FALSE,
                         btwnSpacingStart = 1, btwnSpacing = 0.3, showProgress = TRUE){
-  xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source, showProgress), getProtein(proteins, showProgress))
-  if(saveGlobal){
-    .GlobalEnv$uniProtProteinView_xmls <- xml
-    .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
+  if("preComputed" %in% names(proteins)){
+    l <- proteins$preComputed
+    xml <- unlist(l[,"xml"], recursive = FALSE)
+    if(saveGlobal){
+      .GlobalEnv$uniProtProteinView_xmls <- xml
+      .GlobalEnv$uniProtProteinView_data <- unlist(l[,"features"], recursive = FALSE)
+    }else{
+      uniProtProteinView_xmls <- xml
+      uniProtProteinView_data <- unlist(l[,"features"], recursive = FALSE)
+    }
+    colors <- l[,2]
   }else{
-    uniProtProteinView_xmls <- xml
-    uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
+    xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source, showProgress), getProtein(proteins, showProgress))
+    if(saveGlobal){
+      .GlobalEnv$uniProtProteinView_xmls <- xml
+      .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(.GlobalEnv$uniProtProteinView_xmls)
+    }else{
+      uniProtProteinView_xmls <- xml
+      uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
+    }
+    colors <- ifelse("colors" %in% names(proteins), proteins$colors, NULL)
   }
 
   figure <- plotly::plot_ly(type = "scatter", mode = "lines")
-  colors <- ifelse("colors" %in% names(proteins), proteins$colors, NULL)
   yStart <- 0
 
   for(i in seq_along(uniProtProteinView_data)){
     d <- uniProtProteinView_data[[i]]
 
     clr <- ifelse(i <= length(colors), colors[[i]], randomColor())
-    figure <- drawFeature(figure, d, list(colors = clr), function (type) d$type == "chain", yStart, yStop = yStart + 1)$figure
+    figure <- drawFeature(figure, d, list(colors = clr), function (type) d$type == "chain", yStart, yStop = yStart + 1, indent = FALSE)$figure
 
     figure <- drawFeature(figure, d, types, function(type) d$type == type, yStart, yStop = yStart + 1)$figure
-    figure <- drawFeature(figure, d, dess, function(type) grepl(type, d$description, fixed = TRUE), yStart, yStop = yStart + 1, offset = singleOffset)$figure
+    figure <- drawFeature(figure, d, descriptionSearch, function(type) grepl(type, d$description, fixed = TRUE), yStart, yStop = yStart + 1, offset = singleOffset)$figure
 
-    f <- drawFeature(figure, d, structure, function (type) d$type == type, yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
+    f <- drawFeature(figure, d, offSetFeatures, function (type) d$type == type, yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
     figure <- f$figure
 
     figure <- plotly::layout(figure,
@@ -139,7 +152,7 @@ drawProtein <- function(proteins, types = list(), dess = list(), structure = lis
 #' @import plotly
 drawChain <- function(figure, xi, xf, yi, yf, info, clr, offset = 0){
   nameIn <- gsub("\\;.*","", info)
-  if(nchar(nameIn) >= 30) nameIn <- paste0(substr(nameIn, 1, 30), "...")
+  if(!is.na(nameIn) && nchar(nameIn) >= 30) nameIn <- paste0(substr(nameIn, 1, 30), "...")
 
   plotly::add_trace(figure,
                     x = c(xi-offset, xi-offset, xf+offset, xf+offset),
@@ -177,6 +190,8 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr, offset = 0){
 #'
 #' @param offset Offset of where drawing on the X-axis takes place
 #'
+#' @param indent If the input should be indented, used to indent features of a protein
+#'
 #' @return Returns figure will all matching features drawn on
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
@@ -185,7 +200,7 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr, offset = 0){
 #' TODO references
 #'
 #' @import plotly
-drawFeature <- function(figure, d, toParse, condition, yStart, yStop, offset = 0){
+drawFeature <- function(figure, d, toParse, condition, yStart, yStop, offset = 0, indent = TRUE){
   typeParse <- ifelse("type" %in% names(toParse), toParse$type, toParse)
   colors <- ifelse("colors" %in% names(toParse), toParse$colors, NULL)
   foundAny <- FALSE
@@ -199,7 +214,7 @@ drawFeature <- function(figure, d, toParse, condition, yStart, yStop, offset = 0
 
     for(k in seq_along(found)){
       row <- found[k,]
-      info <- paste0("    ", row$description)
+      info <- ifelse(indent, paste0("    ", row$description), row$description)
       xi <- row$begin
       xf <- row$end
       figure <- drawChain(figure, xi, xf, yStart, yStop, info, clr, offset)
@@ -208,12 +223,13 @@ drawFeature <- function(figure, d, toParse, condition, yStart, yStop, offset = 0
   return(list(figure = figure, actionPreformed = foundAny))
 }
 
-#' INTERNAL FUNCTION: Get and random rgb color
+#' Get and random rgb color
 #'
 #' @return Returns random rgb color
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
+#' @export
 #' @importFrom stats runif
 #' @importFrom grDevices rgb
 randomColor <- function(){
@@ -224,7 +240,7 @@ randomColor <- function(){
   )
 }
 
-#' INTERNAL FUNCTION: If else function
+#' If else function
 #'
 #' Made because function provided by base package A) is really slow as there
 #' are a thousand unneeded things they do, and B) cause the function from the
@@ -239,6 +255,8 @@ randomColor <- function(){
 #' @return Value depending on should the condition be true or false
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @export
 ifelse <- function (condition, true, false){
   if(condition){
     true
@@ -253,10 +271,10 @@ ifelse <- function (condition, true, false){
 #source("R/dataRetrieval.R")
 #source("R/dataParse.R")
 #drawProtein(
-#  proteins = list(source = c("Q04206.xml", "Q9D270.xml"), colors = c("green", "green")),
+#  proteins = list(source = c("Q04206", "Q9D270"), colors = c("random", "green")),
 #  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-#  dess = list(type = "phos", colors = "blue"),
-#  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
+#  descriptionSearch = list(type = "phos", colors = "blue"),
+#  offSetFeatures = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
 #  singleOffset = 2,
 #  saveGlobal = TRUE
 #)
