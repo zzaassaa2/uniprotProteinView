@@ -10,9 +10,8 @@
 #' @export
 #' @import shiny
 runUniprotProteinDraw <- function() {
-  #appDir <- system.file("shiny-scripts",
-  #                      package = "MPLNClust")
-  shiny::runApp("./inst/shiny-scripts", display.mode = "normal")#todo dev only
+  appDir <- system.file("shiny-scripts", package = "uniprotProteinView")
+  shiny::runApp(appDir, display.mode = "normal")#todo dev only "./inst/shiny-scripts"
   return()
 }
 

@@ -36,8 +36,6 @@ supply it with a protein key\_code, this can be found from the Uniprot
 webpage at [UniProt](https://www.uniprot.org/) Once there, search for
 your protein and get the protein key\_code
 
-TODO picture
-
 This code can then be used as shown below, for example purpose, we will
 use human transcription factor p65, with code Q04206.
 
@@ -45,7 +43,7 @@ use human transcription factor p65, with code Q04206.
 uniprotProteinView::drawProtein("Q04206")
 ```
 
-TODO picture
+&lt;img src=“inst/extdata/first.png”, alt=“inst/extdata/first”&gt;
 
 Here the function will search the Uniprot database for the protein, and
 then draw the main chain. Further details about the structure can be
@@ -59,15 +57,15 @@ An example of a more advance usage, using two proteins is such:
 
 ``` r
 uniprotProteinView::drawProtein(
-  proteins = list(source = c("Q04206", "Q9D270"), colors = c("green", "green")),
+  proteins = list(type = c("Q04206", "Q9D270"), colors = c("green", "green")),
   types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-  dess = list(type = "phos", colors = "blue"),
-  structure = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
+  descriptionSearch = list(type = "phos", colors = "blue"),
+  offSetFeatures = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
   singleOffset = 2
 )
 ```
 
-TODO picture
+&lt;img src=“inst/extdata/second.png”, alt=“inst/extdata/second”&gt;
 
 # Contributions
 

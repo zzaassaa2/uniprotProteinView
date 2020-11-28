@@ -33,10 +33,11 @@ getProtein <- function(source, showProgress){
     )
   }
 
+  offset <- 1
   for(i in seq_along(source)){
     s <- source[[i]]
     if(length(s) > 1){
-      stop(paste0("Improper input protein: ", s, ", consult vignettes to learn how to properly get proteins"))
+      stop(paste0("Improper input protein: ", s, ", consult vignettes to learn how to properly get proteins\n"))
     }
     str <- gsub("^\\s+|\\s+$", "", s)
 
@@ -53,33 +54,38 @@ getProtein <- function(source, showProgress){
         out <- out[1:k]
 
         for(j in 1:number){
-          out[i + j-1] <- getRandomProtein(orgid)
+          out[offset] <- getRandomProtein(orgid)
+          offset <- offset + 1
         }
       }else{
-        out[i] <- getRandomProtein(orgID = orgid)
+        out[offset] <- getRandomProtein(orgID = orgid)
+        offset <- offset + 1
       }
     }else if(dir.exists(str)){
       found <- list.files(str, pattern = "*.xml", full.names = TRUE)
       k <- length(out) + length(found) - 1
       out <- out[1:k]
       for(j in seq_along(found)){
-        out[i + j - 1] <- getLocal(found[[j]])
+        out[offset] <- getLocal(found[[j]])
+        offset <- offset + 1
       }
     }else if(file.exists(str)){
-      out[i] <- getLocal(str)
+      out[offset] <- getLocal(str)
+      offset <- offset + 1
     }else{
       if(endsWith(str, ".xml")){
         print(paste0("Failed to find file:", str, ". Would you like to attempt to download the file?"))
         print("Enter 1 for yes, 2 for no and skip this file, 3 to force terminate process.")
         get <- readline("Command: ")
         if(get == 1){
-          out[i] <- getRemoteDownload(str)
+          out[offset] <- getRemoteDownload(str)
         }else if(get == 3){
           stop("Forced termination as user requested")
         }
       }else{
-        out[i] <- getRemote(str)
+        out[offset] <- getRemote(str)
       }
+      offset <- offset + 1
     }
 
     if(showProgress){

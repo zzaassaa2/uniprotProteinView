@@ -159,4 +159,4 @@ shiny::shinyApp(ui, server)
 #rsconnect::setAccountInfo(name='zzaassaa2',
 #                          token='494B8DA16516804A2A9860397222348E',
 #                          secret='<secret key, find at the webpage>')
-#rsconnect::deployApp("./R", appName = "appR")
+#rsconnect::deployApp("./inst/shiny-scripts", appName = "proteinView")

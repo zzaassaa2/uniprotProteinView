@@ -69,9 +69,9 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
       uniProtProteinView_xmls <- xml
       uniProtProteinView_data <- unlist(l[,"features"], recursive = FALSE)
     }
-    colors <- l[,2]
+    colors <- assertColors(l[,2])
   }else{
-    xml <- ifelse("source" %in% names(proteins), getProtein(proteins$source, showProgress), getProtein(proteins, showProgress))
+    xml <- ifelse("type" %in% names(proteins), getProtein(proteins$type, showProgress), getProtein(proteins, showProgress))
     if(saveGlobal){
       .GlobalEnv$uniProtProteinView_xmls <- xml
       .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(.GlobalEnv$uniProtProteinView_xmls)
@@ -79,7 +79,7 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
       uniProtProteinView_xmls <- xml
       uniProtProteinView_data <- getFeaturesDataFrame(uniProtProteinView_xmls)
     }
-    colors <- ifelse("colors" %in% names(proteins), proteins$colors, NULL)
+    colors <- ifelse("colors" %in% names(proteins), assertColors(proteins$colors), NULL)
   }
 
   figure <- plotly::plot_ly(type = "scatter", mode = "lines")
@@ -91,10 +91,10 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
     clr <- ifelse(i <= length(colors), colors[[i]], randomColor())
     figure <- drawFeature(figure, d, list(colors = clr), function (type) d$type == "chain", yStart, yStop = yStart + 1, indent = FALSE)$figure
 
-    figure <- drawFeature(figure, d, types, function(type) d$type == type, yStart, yStop = yStart + 1)$figure
-    figure <- drawFeature(figure, d, descriptionSearch, function(type) grepl(type, d$description, fixed = TRUE), yStart, yStop = yStart + 1, offset = singleOffset)$figure
+    figure <- drawFeature(figure, d, types, function(type) tolower(d$type) == tolower(type), yStart, yStop = yStart + 1)$figure
+    figure <- drawFeature(figure, d, descriptionSearch, function(type) grepl(tolower(type), tolower(d$description), fixed = TRUE), yStart, yStop = yStart + 1, offset = singleOffset)$figure
 
-    f <- drawFeature(figure, d, offSetFeatures, function (type) d$type == type, yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
+    f <- drawFeature(figure, d, offSetFeatures, function (type) tolower(d$type) == tolower(type), yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
     figure <- f$figure
 
     figure <- plotly::layout(figure,
@@ -120,6 +120,53 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
   )
 
   return(figure)
+}
+
+#' INTERNAL FUNCTION: Fixes colors to include random
+#'
+#' Goes through the list of colors, and handles any random entries, specifically if a number is provided
+#'
+#' @param colorsIn List of colors
+#'
+#' @return List of colors, size might be greater, if random has a number > 1
+#'
+#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
+#'
+#' @references
+#' TODO references
+assertColors <- function (colorsIn){#todo misc folder
+  strWith <- startsWith(colorsIn, "random")
+  if(length(strWith) > 0){
+    out <- vector(mode = "list", length = length(colorsIn))
+    offset <- 1
+
+    for(i in seq_along(colorsIn)){
+      if(strWith[[i]]){
+        str <- strsplit(colorsIn[[i]], "\\s+")[[1]]
+        number <- str[startsWith(str, "number")]
+        number <- ifelse(identical(character(0), number), 1, sub(".*:", "", number))
+
+        if(number != 1){
+          k <- length(out) + as.numeric(number) - 1
+          out <- out[1:k]
+
+          for(j in 1:number){
+            out[offset] <- "random"
+            offset <- offset + 1
+          }
+        }else{
+          out[offset] <- "random"
+          offset <- offset + 1
+        }
+      }else{
+        out[offset] <- colorsIn[[i]]
+        offset <- offset + 1
+      }
+    }
+
+    return(out)
+  }
+  return(colorsIn)
 }
 
 #' INTERNAL FUNCTION: Main draw function
@@ -222,60 +269,3 @@ drawFeature <- function(figure, d, toParse, condition, yStart, yStop, offset = 0
   }
   return(list(figure = figure, actionPreformed = foundAny))
 }
-
-#' Get and random rgb color
-#'
-#' @return Returns random rgb color
-#'
-#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
-#'
-#' @export
-#' @importFrom stats runif
-#' @importFrom grDevices rgb
-randomColor <- function(){
-  i <- runif(3)
-  rgb(i[[1]],
-      i[[2]],
-      i[[3]]
-  )
-}
-
-#' If else function
-#'
-#' Made because function provided by base package A) is really slow as there
-#' are a thousand unneeded things they do, and B) cause the function from the
-#' base package also for some reason returns incorrect values, no clue
-#'
-#' @param condition Condition for which to evaluate by
-#'
-#' @param true What value should be returned/run should the condition be true
-#'
-#' @param false What value should be returned/run should the condition be false
-#'
-#' @return Value depending on should the condition be true or false
-#'
-#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
-#'
-#' @export
-ifelse <- function (condition, true, false){
-  if(condition){
-    true
-  }else{
-    false
-  }
-}
-
-
-
-
-#source("R/dataRetrieval.R")
-#source("R/dataParse.R")
-#drawProtein(
-#  proteins = list(source = c("Q04206", "Q9D270"), colors = c("random", "green")),
-#  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-#  descriptionSearch = list(type = "phos", colors = "blue"),
-#  offSetFeatures = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
-#  singleOffset = 2,
-#  saveGlobal = TRUE
-#)
-
