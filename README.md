@@ -50,7 +50,9 @@ use human transcription factor p65, with code Q04206.
 uniprotProteinView::drawProtein("Q04206")
 ```
 
-![](https://github.com/zzaassaa2/uniprotProteinView/inst/extdata/first.png)
+<div style="text-align:center">
+
+<img src="inst/extdata/first.png" width="800" height="450"/>
 
 Here the function will search the UniProt database for the protein, and
 then draw the main chain. Further details about the structure can be
@@ -72,7 +74,9 @@ uniprotProteinView::drawProtein(
 )
 ```
 
-![](https://github.com/zzaassaa2/uniprotProteinView/inst/extdata/second.png)
+<div style="text-align:center">
+
+<img src="inst/extdata/second.png" width="800" height="450"/>
 
 # Contributions
 
