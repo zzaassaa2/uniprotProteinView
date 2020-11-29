@@ -61,15 +61,16 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
                         btwnSpacingStart = 1, btwnSpacing = 0.3, showProgress = TRUE){
   if("preComputed" %in% names(proteins)){
     l <- proteins$preComputed
-    xml <- unlist(l[,"xml"], recursive = FALSE)
+    xml <- l[,"xml"]
     if(saveGlobal){
       .GlobalEnv$uniProtProteinView_xmls <- xml
       .GlobalEnv$uniProtProteinView_data <- unlist(l[,"features"], recursive = FALSE)
     }else{
       uniProtProteinView_xmls <- xml
-      uniProtProteinView_data <- unlist(l[,"features"], recursive = FALSE)
+      uniProtProteinView_data <- l[,'features']
     }
-    colors <- assertColors(l[,2])
+    #.GlobalEnv$k <- l[,4]
+    colors <- assertColors(l[,4])
   }else{
     xml <- ifelse("type" %in% names(proteins), getProtein(proteins$type, showProgress), getProtein(proteins, showProgress))
     if(saveGlobal){
@@ -135,6 +136,7 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
 #' @references
 #' TODO references
 assertColors <- function (colorsIn){#todo misc folder
+  colorsIn <- unlist(colorsIn)
   strWith <- startsWith(colorsIn, "random")
   if(length(strWith) > 0){
     out <- vector(mode = "list", length = length(colorsIn))

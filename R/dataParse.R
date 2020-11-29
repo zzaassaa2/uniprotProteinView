@@ -12,6 +12,8 @@
 #'
 #' @references
 #' TODO references
+#'
+#' @export
 getFeaturesDataFrame <- function(xmls){
   featuresList <- recursiveElementSearch(xmls, "feature")
   out <- vector(mode = "list", length = length(featuresList))

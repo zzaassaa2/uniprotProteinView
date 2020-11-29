@@ -18,6 +18,7 @@
 #' @references
 #' TODO references
 #'
+#' @export
 #' @import XML
 #' @importFrom utils setTxtProgressBar txtProgressBar
 getProtein <- function(source, showProgress){
@@ -37,7 +38,8 @@ getProtein <- function(source, showProgress){
   for(i in seq_along(source)){
     s <- source[[i]]
     if(length(s) > 1){
-      stop(paste0("Improper input protein: ", s, ", consult vignettes to learn how to properly get proteins\n"))
+      warning(paste0("Improper input protein: ", s, ", consult vignettes to learn how to properly get proteins\n"))
+      return(list())
     }
     str <- gsub("^\\s+|\\s+$", "", s)
 
@@ -96,6 +98,7 @@ getProtein <- function(source, showProgress){
     cat("\n")#done to make any text after progress bar on proper line
   }
 
+  .GlobalEnv$apple <- out
   return(out[lengths(out) != 0])
 }
 
@@ -137,63 +140,13 @@ getLocal <- function(source){
 #' @references
 #' TODO references
 getRemote <- function(source, url = paste0(paste0("https://www.uniprot.org/uniprot/", source), ".xml")){
-  confirmStatus(source,
-                url,
-                toRunIf = function (get){
-                  return(getRemotePreApproved(get))
-                },
-                toRunElse = function (){
-                  return(list())
-                }
-                )
-}
-
-#' INTERNAL FUNCTION: Load data from prefound web source
-#'
-#' @param get Web source content obtained using the httr library
-#'
-#' @return List of XML data
-#'
-#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
-#'
-#' @references
-#' TODO references
-#'
-#' @import XML
-getRemotePreApproved <- function (get){
-  k <- XML::xmlParse(rawToChar(get$content))
-  dd <- XML::xmlToList(k, simplify = TRUE)[["entry"]]
-  return(list(dd))
-}
-
-#' Loads content is check if page is valid
-#'
-#' Will attempt to see if the source is a valid uniprot page. Will return a run functions
-#' depending if the code is valid (code == 200) or invalid
-#'
-#' @param source Protein UniProt keycode
-#'
-#' @param url URL source to search
-#'
-#' @param toRunIf Function with passed in webpage content, should the page be valid
-#'
-#' @param toRunElse Function to run should the page be invalid
-#'
-#' @return Function specific output
-#'
-#' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
-#'
-#' @references
-#' TODO references
-#'
-#' @export
-#' @import httr
-confirmStatus <- function (source, url = paste0(paste0("https://www.uniprot.org/uniprot/", source), ".xml"), toRunIf, toRunElse){
   get <- httr::GET(url)
   code <- httr::status_code(get)
 
   if(code == 200){
-    return(toRunIf(get))
+    k <- XML::xmlParse(rawToChar(get$content))
+    dd <- XML::xmlToList(k, simplify = TRUE)[["entry"]]
+    return(list(dd))
   }else if(code == 400){
     warning("Bad request. There is a problem with input: ", source)
   }else if(code == 404){
@@ -208,8 +161,12 @@ confirmStatus <- function (source, url = paste0(paste0("https://www.uniprot.org/
     warning("Unknown error return: ", code, ", using the input: ", source)
   }
 
-  return(toRunElse())
+  return(list())
 }
+
+
+
+
 
 #' INTERNAL FUNCTION: Download the file and then load locally
 #'
