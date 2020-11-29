@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 # Overview
 
-This package provides the user the means to plot proteins with specified features plotted out, as provided from the UniProt API. There are six functions exported, the main two are `drawProtein()` and `runUniprotProteinView().` The other four are `confirmStatus(),` `retrieveParseData(),` `randomColor(),` and `ifelse().` The user will normally only need to use `drawProtein(),` the main drawing function, and `runUniprotProteinView(),` a function that starts the shiny app. If the user should wish to view an interactive shiny app, without calling the function `runUniprotProteinView(),` then they can do so at [Shiny App](https://zzaassaa2.shinyapps.io/proteinView/).
+This package provides the user the means to plot proteins with specified features plotted out, as provided from the UniProt API. There are six functions exported, the main two are `drawProtein()` and `runUniprotProteinView().` The other four are `getProtein(),` `getFeaturesDataFrame(),` `randomColor(),` and `ifelse().` The user will normally only need to use `drawProtein(),` the main drawing function, and `runUniprotProteinView(),` a function that starts the shiny app. If the user should wish to view an interactive shiny app, without calling the function `runUniprotProteinView(),` then they can do so at [Shiny App](https://zzaassaa2.shinyapps.io/proteinView/).
 
 # Run Shiny App
 
@@ -49,6 +49,15 @@ uniprotProteinView::drawProtein(list(type = "Q04206", colors = "red"))
 The output to this function should look something like this
 
 <img src="first_draw.png">
+
+To note is that the function can also retrieve information from locally downloaded .xml files, should they be of the proper format. To retrieve a file, simply go to the protein page, add .xml to the end, and then download that page, so for the Q04206 protein: [UniProt](https://www.uniprot.org/uniprot/Q04206.xml). To search for these files instead, put the file name instead
+
+```r
+#This will look in the local directory that the function is running from by default, so specify a location add the absolute file path, or ./ for a local directory
+uniprotProteinView::drawProtein(list(type = "Q04206.xml", colors = "red"))
+```
+
+If the file can't be found, then the user will be prompted to either choose to skip the protein, stop the operation all together, or download the file, and then load it from there. The file will always be downloaded to the current working directory.
 
 Multiple proteins can be viewed at the same time using either a vector or list
 

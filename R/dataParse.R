@@ -1,4 +1,4 @@
-#' INTERNAL FUNCTION: Creates Dataframe for features
+#' Creates Dataframe for features
 #'
 #' Cycles through all proteins and for each, finds all entries called
 #' "features", then addes them to a dataframe for each protein and combines
@@ -10,13 +10,12 @@
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
-#' @references
-#' TODO references
-#'
 #' @export
 getFeaturesDataFrame <- function(xmls){
+  #Gets a list for each protein, where each protein is a list of all of its features
   featuresList <- recursiveElementSearch(xmls, "feature")
   out <- vector(mode = "list", length = length(featuresList))
+
   for(i in seq_along(featuresList)){
     features <- NULL
     featList <- featuresList[[i]]
@@ -32,13 +31,15 @@ getFeaturesDataFrame <- function(xmls){
         posB <- as.numeric(obj$location$begin)
         posE <- as.numeric(obj$location$end)
       }else{
+        #This is needed for single amino acid modifications
         posB <- as.numeric(obj$location$position)
         posE <- as.numeric(obj$location$position)
       }
 
-      features <- rbind(features, c(obj$.attrs["type"], des, posB, posE))
+      features <- rbind(features, c(obj$.attrs["type"], des, posB, posE))#Binds together all parts to form matrix
     }
 
+    #Create a data frame of all the proteins features
     dataframe <- as.data.frame(features, stringsAsFactors = FALSE)
     colnames(dataframe) <- c("type", "description", "begin", "end")
     dataframe$begin <- as.numeric(dataframe$begin)

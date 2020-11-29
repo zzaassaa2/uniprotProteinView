@@ -71,9 +71,6 @@ then draw further features for the protein as specified within, should they be p
 Can search for features by either exact match, or if description contains an input string.
 Can also further draw certain features above the structure, traditionally structural features
 }
-\references{
-TODO references
-}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

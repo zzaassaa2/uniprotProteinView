@@ -4,14 +4,11 @@
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
-#' @references
-#' TODO references
-#'
 #' @export
 #' @import shiny
 runUniprotProteinDraw <- function() {
   appDir <- system.file("shiny-scripts", package = "uniprotProteinView")
-  shiny::runApp(appDir, display.mode = "normal")#todo dev only "./inst/shiny-scripts"
+  shiny::runApp(appDir, display.mode = "normal")
   return()
 }
 

@@ -1,12 +1,13 @@
 Package: uniprotProteinView
 Type: Package
-Title: Show 2D plot of protein information retrieved from the Uniprot database
+Title: Show 2D plot of protein information retrieved from the UniProt database
 Version: 0.2.1
 Date: 2020-11-16
 Author: George Zorn
 Maintainer: George Zorn <george.zorn@mail.utoronto.ca>
-Description: Can be used to draw xml file data from the Uniprot database and parse into a visual data plot.
+Description: Can be used to draw xml file data from the UniProt database and parse into a visual data plot.
 Encoding: UTF-8
+LazyData: true
 License: MIT License + file LICENSE
 Depends: R (>= 4.0)
 Imports:

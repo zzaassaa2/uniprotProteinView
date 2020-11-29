@@ -29,9 +29,6 @@ Returns the plot, with the new feature drawn on
 \description{
 Used to add the the feature to the figure
 }
-\references{
-TODO references
-}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

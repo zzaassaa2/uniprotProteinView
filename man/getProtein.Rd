@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataRetrieval.R
 \name{getProtein}
 \alias{getProtein}
-\title{INTERNAL FUNCTION: Get protein XML data}
+\title{Get protein XML data}
 \usage{
 getProtein(source, showProgress)
 }
@@ -21,9 +21,6 @@ will ask if the user either want to skip or download the file and load that. Oth
 user can specify a UniProt protein key_code where the function will then attempt to read
 the XML data from the webpage. Alternativly, the user can use "random" to randomly pick
 a protein.
-}
-\references{
-TODO references
 }
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}

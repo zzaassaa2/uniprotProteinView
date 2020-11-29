@@ -52,14 +52,12 @@
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
-#' @references
-#' TODO references
-#'
 #' @export
 #' @import plotly
 drawProtein <- function(proteins, types = list(), descriptionSearch = list(), offSetFeatures = list(), singleOffset = 1, title = NULL, saveGlobal = FALSE,
                         btwnSpacingStart = 1, btwnSpacing = 0.3, showProgress = TRUE){
-  if("preComputed" %in% names(proteins)){
+  #This is used by the shiny app to directly add xml and feature data
+  if("preComputed" %in% names(proteins)){#format must of list(xxxx = xxxx, xml = xmlData, features = featureData, xxxx = colorData)
     l <- proteins$preComputed
     xml <- l[,"xml"]
     if(saveGlobal){
@@ -69,11 +67,11 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
       uniProtProteinView_xmls <- xml
       uniProtProteinView_data <- l[,'features']
     }
-    #.GlobalEnv$k <- l[,4]
     colors <- assertColors(l[,4])
   }else{
+    #Stand way for user input
     xml <- ifelse("type" %in% names(proteins), getProtein(proteins$type, showProgress), getProtein(proteins, showProgress))
-    if(saveGlobal){
+    if(saveGlobal){#Option if the user wishes to save the data globally
       .GlobalEnv$uniProtProteinView_xmls <- xml
       .GlobalEnv$uniProtProteinView_data <- getFeaturesDataFrame(.GlobalEnv$uniProtProteinView_xmls)
     }else{
@@ -83,21 +81,28 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
     colors <- ifelse("colors" %in% names(proteins), assertColors(proteins$colors), NULL)
   }
 
+  #Start plot handling
   figure <- plotly::plot_ly(type = "scatter", mode = "lines")
-  yStart <- 0
+  yStart <- 0#This variable is used to keep track of where the next protein element should be drawn
 
-  for(i in seq_along(uniProtProteinView_data)){
-    d <- uniProtProteinView_data[[i]]
+  for(i in seq_along(uniProtProteinView_data)){#Iterate through, this should be equal to number of proteins input
+    d <- uniProtProteinView_data[[i]]#Feature data for current protein
 
+    #Color of main chain
     clr <- ifelse(i <= length(colors), colors[[i]], randomColor())
+    #Draws the proteins main chain
     figure <- drawFeature(figure, d, list(colors = clr), function (type) d$type == "chain", yStart, yStop = yStart + 1, indent = FALSE)$figure
 
+    #Draws all stand features by if the name is a literal match (excluding capatilization) to the input
     figure <- drawFeature(figure, d, types, function(type) tolower(d$type) == tolower(type), yStart, yStop = yStart + 1)$figure
+    #Draws all features that contain the given string in their description
     figure <- drawFeature(figure, d, descriptionSearch, function(type) grepl(tolower(type), tolower(d$description), fixed = TRUE), yStart, yStop = yStart + 1, offset = singleOffset)$figure
 
+    #Draws all features that are wished to be drawn offset.
     f <- drawFeature(figure, d, offSetFeatures, function (type) tolower(d$type) == tolower(type), yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
     figure <- f$figure
 
+    #Draws the protein literal name to the left of the protein
     figure <- plotly::layout(figure,
                              annotations = list(
                                x = -0.01,
@@ -109,10 +114,12 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
                              )
     )
 
+    #Used to determine if any offSet features where drawn if not, ignore and increment yStart by just 1 and move on
     if(f$actionPreformed) yStart <- yStart + btwnSpacing
     yStart <- yStart + 1
   }
 
+  #Used to format the plot and add the title to the desired form
   figure <- plotly::layout(figure,
                            title = title,
                            legend = list(itemsizing = "constant", font = list(size = 8)),
@@ -132,27 +139,28 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
 #' @return List of colors, size might be greater, if random has a number > 1
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
-#'
-#' @references
-#' TODO references
-assertColors <- function (colorsIn){#todo misc folder
-  colorsIn <- unlist(colorsIn)
+assertColors <- function (colorsIn){
+  colorsIn <- unlist(colorsIn)#This is needed cause apparently the startsWith function doesn't like lists
   strWith <- startsWith(colorsIn, "random")
-  if(length(strWith) > 0){
+
+  if(length(strWith) > 0){#If no featueres that start with "random", then move on
     out <- vector(mode = "list", length = length(colorsIn))
-    offset <- 1
+    offset <- 1#This variable is used for when a random also includes an amount that, such as "random number:3"
 
     for(i in seq_along(colorsIn)){
+      #Sees if there was an element that started with "random"
       if(strWith[[i]]){
-        str <- strsplit(colorsIn[[i]], "\\s+")[[1]]
-        number <- str[startsWith(str, "number")]
+        str <- strsplit(colorsIn[[i]], "\\s+")[[1]]#Splits by white space
+        number <- str[startsWith(str, "number")]#If the number feature was specified
+        #If number was added, then use what is after the ":", if not, then character(0) is returned, so just use 1
         number <- ifelse(identical(character(0), number), 1, sub(".*:", "", number))
 
         if(number != 1){
+          #Expands the output size
           k <- length(out) + as.numeric(number) - 1
           out <- out[1:k]
 
-          for(j in 1:number){
+          for(j in 1:number){#Adds random for each entry
             out[offset] <- "random"
             offset <- offset + 1
           }
@@ -161,14 +169,16 @@ assertColors <- function (colorsIn){#todo misc folder
           offset <- offset + 1
         }
       }else{
+        #If random was not specified, then just add the color in
         out[offset] <- colorsIn[[i]]
         offset <- offset + 1
       }
     }
 
-    return(out)
+    return(out)#Returned if there was at least one instance of "random"
   }
-  return(colorsIn)
+
+  return(colorsIn)#Returned if there were not instances of "random"
 }
 
 #' INTERNAL FUNCTION: Main draw function
@@ -195,12 +205,11 @@ assertColors <- function (colorsIn){#todo misc folder
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
-#' @references
-#' TODO references
-#'
 #' @import plotly
 drawChain <- function(figure, xi, xf, yi, yf, info, clr, offset = 0){
+  #Removes any information after and including the ";" character
   nameIn <- gsub("\\;.*","", info)
+  #Limits the max legend size for the name to be 30 characters
   if(!is.na(nameIn) && nchar(nameIn) >= 30) nameIn <- paste0(substr(nameIn, 1, 30), "...")
 
   plotly::add_trace(figure,
@@ -212,7 +221,7 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr, offset = 0){
                     line = list(color ="rgba(1,1,1,0.0)"),
                     name = nameIn,
                     hoverinfo = "text",
-                    text = paste0(gsub("^\\s+|\\s+$", "", info),
+                    text = paste0(gsub("^\\s+|\\s+$", "", info),#trims off any white space
                                   "\n", "Start: ", xi,
                                   "\n", "End: ", xf
                     )
@@ -245,29 +254,30 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr, offset = 0){
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
-#' @references
-#' TODO references
-#'
 #' @import plotly
 drawFeature <- function(figure, d, toParse, condition, yStart, yStop, offset = 0, indent = TRUE){
+  #These two functions are used in case the user should provide a list with type and color specified, or just a regular list or vector
   typeParse <- ifelse("type" %in% names(toParse), toParse$type, toParse)
   colors <- ifelse("colors" %in% names(toParse), toParse$colors, NULL)
   foundAny <- FALSE
 
   for(j in seq_along(typeParse)){
-    type <- typeParse[[j]]
+    type <- typeParse[[j]]#Current feature to draw should it be present in the protein features
+    #Used to make sure that if the user only provided one color for two proteins, then the function will simply use a random color
     clr <- ifelse(j <= length(colors), colors[[j]], randomColor())
-    clr <- ifelse(clr == "random", randomColor(), clr)
-    found <- d[condition(type),]
-    if(dim(found)[1] != 0) foundAny <- TRUE
+    clr <- ifelse(clr == "random", randomColor(), clr)#checks if the color was random, if so, use a random color
+    found <- d[condition(type),]#Get any features of the condition type, should there by any
+    if(dim(found)[1] != 0) foundAny <- TRUE #Used to show that elements were drawn to screen, needed for offset features
 
     for(k in seq_along(found)){
       row <- found[k,]
+      #Used by the legend, so that the main chain isn't indented, while all features for the protiein are indented on the legend
       info <- ifelse(indent, paste0("    ", row$description), row$description)
       xi <- row$begin
       xf <- row$end
       figure <- drawChain(figure, xi, xf, yStart, yStop, info, clr, offset)
     }
   }
+
   return(list(figure = figure, actionPreformed = foundAny))
 }

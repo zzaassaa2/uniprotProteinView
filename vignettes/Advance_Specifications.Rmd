@@ -138,25 +138,21 @@ This function, when called, opens up a shiny app. Alternativly, the user can vis
 uniprotProteinView::runUniprotProteinDraw()
 ```
 
-# confirmStatus
+# getProtein
 
-This function is primarily intended for use by the shiny app. It retrieves the webpage data from UniProt and then either throws a warning if the code isn't 200, but if 200, then the search was successful, and then will return the raw webpage data. This function takes in a protein key_code and two function to run should the function successfully find the page, or not
+This function is the main function to retrieve XML data from the UniProt API. It will handle all data retrieval for the user. It is exported primarily for use by the Shiny App
 
 ```r
-#Use webPageData$content to get the content. Use rawToChar(webPageData$content) in order to convert the data to string format
-webPageData <- uniprotProteinView::confirmStatus("Q04206", toRunIf = function (code) code, toRunElse = function () list())
+webPageData <- uniprotProteinView::confirmStatus("Q04206", FALSE)
 ```
 
-# retrieveParseData
+# getFeaturesDataFrame
 
-This function is indended for use by the shiny app. It can be used in conjunction with `confirmStatus` in order get preformatted protein data.
+This function is used to parse a list of proteins, and return a list of equal size, where instead of protein XML data, is a data frame of all the features that the protein contains. Exported primarily for use by the Shiny App
 
 ```r
-webPageData <- uniprotProteinView::confirmStatus("Q04206", toRunIf = function (code) code, toRunElse = function () list())
-#This will return a list with xml and features elements, preparsed.
-list <- uniprotProteinView::retrieveParseData(webPageData)
-#To use this information, give it to the `drawProtein()` function, in the following format
-uniprotProteinView::drawProtein(list(preComputed = list))
+webPageData <- uniprotProteinView::confirmStatus("Q04206", FALSE)
+features <- uniprotProteinView::getFeaturesDataFrame(webPageData)
 ```
 
 # randomColor

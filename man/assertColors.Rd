@@ -15,9 +15,6 @@ List of colors, size might be greater, if random has a number > 1
 \description{
 Goes through the list of colors, and handles any random entries, specifically if a number is provided
 }
-\references{
-TODO references
-}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

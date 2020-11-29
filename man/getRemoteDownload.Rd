@@ -15,9 +15,6 @@ Returns list of XML data
 \description{
 INTERNAL FUNCTION: Download the file and then load locally
 }
-\references{
-TODO references
-}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

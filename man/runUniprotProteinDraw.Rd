@@ -9,9 +9,6 @@ runUniprotProteinDraw()
 \description{
 Will create an interactive shiny app with imbeded plotly figure
 }
-\references{
-TODO references
-}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

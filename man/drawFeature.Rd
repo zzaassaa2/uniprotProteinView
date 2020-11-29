@@ -40,9 +40,6 @@ Returns figure will all matching features drawn on
 Corrects input varables to proper form and used to interate through entries
 that were found based upon input condition.
 }
-\references{
-TODO references
-}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

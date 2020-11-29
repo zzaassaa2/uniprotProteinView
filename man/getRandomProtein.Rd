@@ -16,9 +16,6 @@ List of parsed XML data
 Will use UniProts internal API function to find a random protein using the specified
 organism ID
 }
-\references{
-TODO references
-}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

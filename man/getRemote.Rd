@@ -21,9 +21,6 @@ List of XML data
 Will attempt to see if the source is a valid uniprot page. Will return a status_code to
 determine if successful, and if so, parse XML data
 }
-\references{
-TODO references
-}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataParse.R
 \name{getFeaturesDataFrame}
 \alias{getFeaturesDataFrame}
-\title{INTERNAL FUNCTION: Creates Dataframe for features}
+\title{Creates Dataframe for features}
 \usage{
 getFeaturesDataFrame(xmls)
 }
@@ -16,9 +16,6 @@ List of dataframes for each protein's XML data
 Cycles through all proteins and for each, finds all entries called
 "features", then addes them to a dataframe for each protein and combines
 all dataframes into a list
-}
-\references{
-TODO references
 }
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
