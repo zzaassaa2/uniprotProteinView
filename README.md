@@ -5,9 +5,9 @@
 <!-- badges: end -->
 
 The goal of uniprotProteinView is to provide a means to show a graphical
-representation of the UniProt data as well as allow easy cross
-comparison of features between different proteins for easy analysis of
-protein features.
+representation of the UniProt data as well as allow easy
+cross-comparison of features between different proteins for easy
+analysis of protein features.
 
 # Installation
 
@@ -21,29 +21,29 @@ library("uniprotProteinView")
 
 # Overview
 
-The uniprotProteinView package provides six functions, however the user
+The uniprotProteinView package provides six functions. However the user
 will normally only need to use two: `drawProtein()`, the main drawing
 function, or `runUniprotProteinView()`, a function that opens up an
-interactive Shiny app. To see further documentatio
+interactive Shiny app. To see further documentation:
 
 ``` r
 ls("package:uniprotProteinView")
 ```
 
-To view an interactive shiny app, you can visit the webpage [Shiny
+To view an interactive Shiny app, you can visit the webpage [Shiny
 App](https://zzaassaa2.shinyapps.io/proteinView/), or call the function:
 
 ``` r
 uniprotProteinView::runUniprotProteinDraw()
 ```
 
-Otherwise the most simple usage of the function `drawProtein` is to
-supply it with a protein key\_code, this can be found from the UniProt
-webpage at [UniProt](https://www.uniprot.org/) Once there, search for
-your protein and get the protein key\_code
+Otherwise, the most simple usage of the function `drawProtein` is to
+supply it with a protein key\_code. This can be found from the UniProt
+webpage at [UniProt](https://www.uniprot.org/). Once there, search for
+your protein and get the protein key\_code.
 
-This code can then be used as shown below, for example purpose, we will
-use human transcription factor p65, with code Q04206.
+This code can then be used as shown below. As an example, we will use
+human transcription factor p65, with code Q04206.
 
 ``` r
 #Note: that your protein will be a different color than the image shown, by default the function chooses a random color
@@ -56,15 +56,15 @@ uniprotProteinView::drawProtein("Q04206")
 
 </div>
 
-Here the function will search the UniProt database for the protein, and
+Here the function will search the UniProt database for the protein and
 then draw the main chain. Further details about the structure can be
-added, for further information look through the vignettes:
+added. For further information, look through the vignettes:
 
 ``` r
 browseVignettes("uniprotProteinView")
 ```
 
-An example of a more advance usage, using two proteins is such:
+An example of a more advanced usage with two proteins is:
 
 ``` r
 uniprotProteinView::drawProtein(
@@ -105,8 +105,8 @@ Plotly R Open Source Graphing Library. Plotly. Website.
 <https://plotly.com/r/>
 
 R Core Team (2017). R: A language and environment for statistical
-computing. R Foundation for Statistical Computing, Vienna, Austria. URL
-<https://www.R-project.org/>.
+computing. R Foundation for Statistical Computing, Vienna, Austria.
+Website. <https://www.R-project.org/>.
 
 The UniProt Consortium. UniProt: a worldwide hub of protein knowledge.
 *Nucleic Acids Res.* 47: D506-515 (2019)
@@ -117,4 +117,4 @@ Massachusetts: O’Reilly Media. <https://r-pkgs.org/>
 # Acknowledgements
 
 This package was developed as part of an assessment for 2020BCB410H:
-Applied Bioinformatics, University of Toronto, Toronto,CANADA.
+Applied Bioinformatics, University of Toronto, Toronto, CANADA.

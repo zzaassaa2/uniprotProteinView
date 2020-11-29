@@ -14,15 +14,15 @@ ui <- shinyUI(fluidPage(
       "For features, there are three ways to visualize them:"
     ),
     tags$ol(class="card-text",
-      tags$li(class="card-text","Type search: which will show the represented types on the protein."),
-      tags$li(class="card-text","Description search: Each protein has description for each type, so things like modified residues will have a description describing what this is, so a description search will ",
-              "look through and find any description with has the given string with it, and display that, and example is Phos to find all phosphorylated residues."),
-      tags$li(class="card-text","Offset search, this is the same as 1, but will display these features above the protein.")
+      tags$li(class="card-text","Type search: This will show the represented types on the protein."),
+      tags$li(class="card-text","Description search: Each protein has a description for each type, so things such as modified residues will have a description of what this is, so a description search will ",
+              "look through and find any description that has the given string and display it. An example is \"phos\" to find all phosphorylated residues."),
+      tags$li(class="card-text","Offset search: This is the same as Type search, but it will display these features offset, above the protein.")
     ),
-    p(class="card-text","To start, search for your protein key_code from ", a(href = "https://www.uniprot.org/", "UniProt")),
-    p(class="card-text","An example is the ", a(href="", "Atg13 protein"), " whose URL is https://www.uniprot.org/uniprot/Q06628, and the protein key_code is thus Q06628"),
+    p(class="card-text","To start, search for your protein key_code from ", a(href = "https://www.uniprot.org/", "UniProt.")),
+    p(class="card-text","An example is the ", a(href="https://www.uniprot.org/uniprot/Q06628", "Atg13 protein"), " which is found at ", a(href = "https://www.uniprot.org/uniprot/Q06628", "https://www.uniprot.org/uniprot/Q06628"), ", and the protein key_code is thus Q06628."),
     p(class="card-text","Multiple proteins can be searched at once by leaving a space between entries."),
-    p(class="card-text", "For more information, or references, see the github site: ", a(href = "https://github.com/zzaassaa2/uniprotProteinView", "uniprotProteinView"))
+    p(class="card-text", "For more information, or references, see the github site: ", a(href = "https://github.com/zzaassaa2/uniprotProteinView", "uniprotProteinView."))
     )
   ),
   hr(),
