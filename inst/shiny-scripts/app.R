@@ -34,7 +34,7 @@ ui <- shinyUI(fluidPage(
     column(3,
            wellPanel(#btn btn-outline-primary
              textInput(inputId = "file", label = "UniProt Protein Key", placeholder = "Key_code"),
-             textOutput("errorMsg"),
+             textOutput("errorMsg", class="shiny-text-output text-danger"),
              textInput(inputId = "fileChooseColor", label = "Choose Color(name or Hex)", placeholder = "Leave empty for random"),
              actionButton("addFile", label = "Add File", class = "btn btn-default action-button btn-outline-primary"),
              div(id = "placeHolder")
