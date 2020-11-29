@@ -54,6 +54,8 @@ uniprotProteinView::drawProtein("Q04206")
 
 <img src="inst/extdata/first.png" width="800" height="450"/>
 
+</div>
+
 Here the function will search the UniProt database for the protein, and
 then draw the main chain. Further details about the structure can be
 added, for further information look through the vignettes:
@@ -77,6 +79,8 @@ uniprotProteinView::drawProtein(
 <div style="text-align:center">
 
 <img src="inst/extdata/second.png" width="800" height="450"/>
+
+</div>
 
 # Contributions
 
