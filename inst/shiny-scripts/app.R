@@ -72,7 +72,7 @@ ui <- fluidPage(
       tags$footer(
         class = "card-text",
         "This package and website was developed by George Zorn, as part of an assessment for 2020BCB410H: Applied Bioinformatics, University of Toronto, Toronto, CANADA.",
-        "This webpage make use of a bootstrap css script made free for use by Thomas Park. ", tags$a(href="https://bootswatch.com/", "Website "), tags$a(href="https://github.com/thomaspark/bootswatch", "Github")
+        "This webpage makes use of a bootstrap css script made free for use by Thomas Park. ", tags$a(href="https://bootswatch.com/", "Website "), tags$a(href="https://github.com/thomaspark/bootswatch", "Github")
       )
     )
   )
@@ -184,7 +184,12 @@ server <- function (input, output, session){
   observeEvent(input$addType, {
     if(input$selectType != ""){
       rv$types$type <- append(rv$types$type, input$selectType)
-      rv$types$colors <- append(rv$types$colors, if(input$typeChooseColor == ""){ "random" }else { input$typeChooseColor })
+      if(input$typeChooseColor == ""){
+        clr <- "random"
+      }else{
+        clr <- input$typeChooseColor
+      }
+      rv$types$colors <- append(rv$types$colors, clr)
 
       k <- gsub(" ", "_", input$selectType)
       insertUI(
@@ -193,7 +198,7 @@ server <- function (input, output, session){
           id = k,
           class = "alert alert-dismissible alert-success",
           tags$p(
-            tags$style(paste0("#",xValue, "{color: ",clr,"}")),#.text{mix-blend-mode: difference}
+            tags$style(paste0("#",k, "{color: ",clr,"}")),
             k
           ),
           actionButton(paste0("button", k), "X", class = "btn btn-default action-button close")
@@ -211,7 +216,12 @@ server <- function (input, output, session){
   observeEvent(input$addDesSearch, {
     if(input$selectDesSearch != ""){
       rv$dess$type <- append(rv$dess$type, input$selectDesSearch)
-      rv$dess$colors <- append(rv$dess$colors, if(input$dessChooseColor == ""){ "random" }else { input$dessChooseColor })
+      if(input$dessChooseColor == ""){
+        clr <- "random"
+      }else{
+        clr <- input$dessChooseColor
+      }
+      rv$dess$colors <- append(rv$dess$colors, clr)
 
       k <- gsub(" ", "_", input$selectDesSearch)
       insertUI(
@@ -219,7 +229,10 @@ server <- function (input, output, session){
         ui = tags$div(
           id = k,
           class = "alert alert-dismissible alert-success",
-          tags$p(k),
+          tags$p(
+            tags$style(paste0("#",k, "{color: ",clr,"}")),
+            k
+          ),
           actionButton(paste0("button", k), "X", class = "btn btn-default action-button close")
         )
       )
@@ -235,7 +248,12 @@ server <- function (input, output, session){
   observeEvent(input$addOffset, {
     if(input$selectOffset != ""){
       rv$offset$type <- append(rv$offset$type, input$selectOffset)
-      rv$offset$colors <- append(rv$offset$colors, if(input$offsetChooseColor == ""){ "random" }else { input$offsetChooseColor })
+      if(input$offsetChooseColor == ""){
+        clr <- "random"
+      }else{
+        clr <- input$offsetChooseColor
+      }
+      rv$offset$colors <- append(rv$offset$colors, clr)
 
       k <- gsub(" ", "_", input$selectOffset)
       insertUI(
@@ -243,7 +261,10 @@ server <- function (input, output, session){
         ui = tags$div(
           id = k,
           class = "alert alert-dismissible alert-success",
-          tags$p(k),
+          tags$p(
+            tags$style(paste0("#",k, "{color: ",clr,"}")),
+            k
+          ),
           actionButton(paste0("button", k), "X", class = "btn btn-default action-button close")
         )
       )
