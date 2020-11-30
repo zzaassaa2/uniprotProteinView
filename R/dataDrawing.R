@@ -57,7 +57,7 @@
 drawProtein <- function(proteins, types = list(), descriptionSearch = list(), offSetFeatures = list(), singleOffset = 1, title = NULL, saveGlobal = FALSE,
                         btwnSpacingStart = 1, btwnSpacing = 0.3, showProgress = TRUE){
   #This is used by the shiny app to directly add xml and feature data
-  if("preComputed" %in% names(proteins)){#format must of list(xxxx = xxxx, xml = xmlData, features = featureData, xxxx = colorData)
+  if("preComputed" %in% names(proteins)){#format must of list(xxxx = xxxx, xml = xmlData, features = featureData, colors = colorData)
     l <- proteins$preComputed
     xml <- l[,"xml"]
     if(saveGlobal){
@@ -67,7 +67,7 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
       uniProtProteinView_xmls <- xml
       uniProtProteinView_data <- l[,'features']
     }
-    colors <- assertColors(l[,4])
+    colors <- assertColors(l[,"colors"])
   }else{
     #Stand way for user input
     xml <- ifelse("type" %in% names(proteins), getProtein(proteins$type, showProgress), getProtein(proteins, showProgress))

@@ -163,11 +163,3 @@ This is a utility function primarily intended for use by the shiny app. This fun
 color <- uniprotProteinView::randomColor()
 ```
 
-# ifelse
-
-This is a utility function used due to how `ifElse()` function provided by the R base package is both slow, and also returns improper values
-
-```r
-#This simple example will return the string "Apple"
-result <- uniprotProteinView::ifelse(condition = 1 < 2, true = "Apple", false = "Pear")
-```

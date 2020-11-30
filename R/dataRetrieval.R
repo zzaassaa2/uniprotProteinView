@@ -45,7 +45,8 @@ getProtein <- function(source, showProgress){
     str <- gsub("^\\s+|\\s+$", "", s)
 
     if(startsWith(str, "random")){#Handles cases where the user provides random
-      spt <- strsplit(str, "\\s+")[[1]]#Split on white space
+      spt <- gsub("\\|+", " ", str)
+      spt <- strsplit(spt, "\\s+")[[1]]#Split on white space
       number <- spt[startsWith(spt, "number")]
       orgid <- spt[startsWith(spt, "orgid")]
 
@@ -93,7 +94,6 @@ getProtein <- function(source, showProgress){
         }
       }else{
         out[offset] <- getRemote(str)#If all else isn't true, then try and read XML data from UniProt servers
-
       }
       offset <- offset + 1
     }

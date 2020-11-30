@@ -1,8 +1,7 @@
 library("shiny")
-library("uniprotProteinView")
 
 
-ui <- shinyUI(fluidPage(
+ui <- fluidPage(
   theme = "bootstrap.css", #Load bootstrap css
   tagList(tags$head(tags$title("uniprotProteinView")), div(class = "col-sm-12 jumbotron", h1("uniprotProteinView"))),
   tags$div(
@@ -30,7 +29,6 @@ ui <- shinyUI(fluidPage(
     column(3,
            wellPanel(#File chooser
              textInput(inputId = "file", label = "UniProt Protein Key", placeholder = "Key_code"),
-             textOutput("errorMsg"),
              textInput(inputId = "fileChooseColor", label = "Choose Color(name or Hex)", placeholder = "Leave empty for random"),
              actionButton("addFile", label = "Add File", class = "btn btn-default action-button btn-outline-primary"),
              div(id = "placeHolder")
@@ -62,10 +60,12 @@ ui <- shinyUI(fluidPage(
     )
   ),
   actionButton("updateGraph", label = "Update Graph", class = "btn btn-default action-button btn-outline-primary"),
+  actionButton("testButton", label = "test", class = "btn btn-default action-button btn-outline-primary"),
+  div(id = "test"),
   fluidRow(
     plotly::plotlyOutput("graph")
   )
-))
+)
 
 server <- function (input, output, session){
   rv <- shiny::reactiveValues(files = NULL, types = list(), dess = list(), offset = list())
@@ -74,8 +74,8 @@ server <- function (input, output, session){
     x <- rv$files
     if(!is.null(x)){
       if(nrow(x) > 0){#update the type and offset lists with the possible values
-        xx <- data.table::rbindlist(x[,"features"])
-        x <- xx[,1]
+        x <- data.table::rbindlist(x[,"features"])
+        x <- x[,1]
         x <- x[!duplicated(x)]#Removes duplicated elements
         updateSelectInput(session, "selectType", choices = x[-1])
         updateSelectInput(session, "selectOffset", choices = x[-1])
@@ -94,47 +94,56 @@ server <- function (input, output, session){
 
     for(i in seq_along(spt)){
       s <- spt[[i]] #input
-      xml <- getProtein(s, FALSE)#Get the protein
+      withProgress(message = "Retrieving Protein Information", value = 1, {
+        tryCatch({
+          #s <- gsub("\\|+", " ", s)
+          suppressWarnings(xml <- uniprotProteinView::getProtein(s, FALSE))#Get the protein
+        },error = function (cond){
+          showNotification(paste0("The following error was thrown while trying to retrieve Protein data for the input: ",s,
+                                  " generating the error:\n", cond), type = "error")
+        })
+      })
       l <- length(xml)
 
       if(l > 0){#If a value was retrieved
-        features <- getFeaturesDataFrame(xml)#Get feature dataframe Only bother getting this, if there is value to the xml
-        for(i in seq_along(xml)){
+        features <- uniprotProteinView::getFeaturesDataFrame(xml)#Get feature dataframe Only bother getting this, if there is value to the xml
+
+        #this function is mandatory, and in general recommended, for all shiny loops, cause other wise it just doesn't work
+        lapply(seq_along(xml), function (i){
           x <- xml[[i]]
           f <- features[[i]]
+          xValue <- x[[1]]
 
           #Bind together to form labeled matrix
-          rv$files <- rbind(rv$files, list(protein = x[[1]], xml = x, features = f, colors = ifelse(input$fileChooseColor == "", randomColor(), input$fileChooseColor)))
+          rv$files <- rbind(rv$files, list(protein = xValue, xml = x, features = f, colors = if(input$fileChooseColor == ""){ uniprotProteinView::randomColor() }else { input$fileChooseColor }))
           #Insert the new UI component
           insertUI(
             selector = "#placeHolder",
             ui = tags$div(
-              id = x[[1]],
+              id = xValue,
               class="alert alert-dismissible alert-success",
-              tags$p(x[[1]]),
-              actionButton(paste0("button",x[[1]]), "X", class = "btn btn-default action-button close")
+              tags$p(xValue),
+              actionButton(paste0("button",xValue), "X", class = "btn btn-default action-button close")
             )
           )
           #Add event for when the delete button is pressed
-          observeEvent(input[[paste0("button", x[[1]])]],{
-            removeUI(selector = paste0("#", x[[1]]))
+          observeEvent(input[[paste0("button", xValue)]],{
+            removeUI(selector = paste0("#", xValue))
             #Removes element(s) when button pressed
-            k <- rv$files[rv$files[,1] != x[[1]],]
+            k <- rv$files[rv$files[,1] != xValue,]
             if(is.vector(k)){
-              k <- rbind(NULL, list(protein = k[[1]], xml = k[[2]], features = k[[3]]))
+              k <- rbind(NULL, list(protein = k[[1]], xml = k[[2]], features = k[[3]], colors = k[[4]]))
             }
             rv$files <- k
           })
-        }
+        })
       }else{
         error <- paste(error, s)
       }
     }
 
-    if(is.null(error)){
-      output$errorMsg <- NULL
-    }else{
-      output$errorMsg <- renderText(paste("Invalid input:", error))
+    if(!is.null(error)){
+      showNotification(paste("Invalid input for:", error), type = "warning")
     }
   })
 
@@ -142,7 +151,7 @@ server <- function (input, output, session){
   observeEvent(input$addType, {
     if(input$selectType != ""){
       rv$types$type <- append(rv$types$type, input$selectType)
-      rv$types$colors <- append(rv$types$colors, ifelse(input$typeChooseColor == "", randomColor(), input$typeChooseColor))
+      rv$types$colors <- append(rv$types$colors, if(input$typeChooseColor == ""){ uniprotProteinView::randomColor() }else { input$typeChooseColor })
 
       k <- gsub(" ", "_", input$selectType)
       insertUI(
@@ -166,7 +175,7 @@ server <- function (input, output, session){
   observeEvent(input$addDesSearch, {
     if(input$selectDesSearch != ""){
       rv$dess$type <- append(rv$dess$type, input$selectDesSearch)
-      rv$dess$colors <- append(rv$dess$colors, ifelse(input$dessChooseColor == "", randomColor(), input$dessChooseColor))
+      rv$dess$colors <- append(rv$dess$colors, if(input$dessChooseColor == ""){ uniprotProteinView::randomColor() }else { input$dessChooseColor })
 
       k <- gsub(" ", "_", input$selectDesSearch)
       insertUI(
@@ -190,7 +199,7 @@ server <- function (input, output, session){
   observeEvent(input$addOffset, {
     if(input$selectOffset != ""){
       rv$offset$type <- append(rv$offset$type, input$selectOffset)
-      rv$offset$colors <- append(rv$offset$colors, ifelse(input$offsetChooseColor == "", randomColor(), input$offsetChooseColor))
+      rv$offset$colors <- append(rv$offset$colors, if(input$offsetChooseColor == ""){ uniprotProteinView::randomColor() }else { input$offsetChooseColor })
 
       k <- gsub(" ", "_", input$selectOffset)
       insertUI(
@@ -211,15 +220,24 @@ server <- function (input, output, session){
   })
 
   #Main plot
-  observeEvent(input$updateGraph, {
-    output$graph <- plotly::renderPlotly({
-      drawProtein(proteins = list(preComputed = isolate(rv$files)),
-                  types = list(type = isolate(rv$types$type), colors = isolate(rv$types$colors)),
-                  descriptionSearch = list(type = isolate(rv$dess$type), colors = isolate(rv$dess$colors)),
-                  offSetFeatures = list(type = isolate(rv$offset$type), colors = isolate(rv$offset$colors)),
-                  showProgress = FALSE,
-                  saveGlobal = FALSE
-      )
+  observeEvent(input$updateGraph, {#todo issue?
+    withProgress(message = "Generating Plot", value = 1,{
+      tryCatch({
+        .GlobalEnv$k <- rv$files
+        output$graph <- plotly::renderPlotly({
+          uniprotProteinView::drawProtein(proteins = list(preComputed = isolate(rv$files)),
+                      types = list(type = isolate(rv$types$type), colors = isolate(rv$types$colors)),
+                      descriptionSearch = list(type = isolate(rv$dess$type), colors = isolate(rv$dess$colors)),
+                      offSetFeatures = list(type = isolate(rv$offset$type), colors = isolate(rv$offset$colors)),
+                      showProgress = FALSE,
+                      saveGlobal = FALSE
+          )
+        })
+      },error = function (cond){
+        showNotification(paste0("The following error was thrown while trying to generate graph:\n", cond), type = "error")
+      }, warning = function (cond){
+        showNotification(paste0("The following warning was thrown while trying to generate graph:\n", cond), type = "warning")
+      })
     })
   })
 
@@ -228,7 +246,6 @@ server <- function (input, output, session){
 shiny::shinyApp(ui, server)
 
 
-#todo random httr2 error, might must be ide
-#todo general cleanup
-#todo random format
-
+#todo make standard accross code gsub("\\|+", " ", s)
+#todo reduce size try xml
+#>>>todo random httr2 error, might must be ide

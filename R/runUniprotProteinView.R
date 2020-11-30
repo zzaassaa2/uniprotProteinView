@@ -13,5 +13,3 @@ runUniprotProteinDraw <- function() {
 }
 
 
-
-

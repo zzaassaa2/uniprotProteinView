@@ -13,8 +13,6 @@
 #' @return Value depending on should the condition be true or false
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
-#'
-#' @export
 ifelse <- function (condition, true, false){
   if(condition){
     true
