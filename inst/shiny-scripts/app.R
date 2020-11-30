@@ -64,6 +64,17 @@ ui <- fluidPage(
   actionButton("updateGraph", label = "Update Graph", class = "btn btn-default action-button btn-outline-primary"),
   fluidRow(
     plotly::plotlyOutput("graph")
+  ),
+  tags$div(
+    class="card text-white bg-primary mb-3",
+    tags$div(
+      class="card-body",
+      tags$footer(
+        class = "card-text",
+        "This package and website was developed by George Zorn, as part of an assessment for 2020BCB410H: Applied Bioinformatics, University of Toronto, Toronto, CANADA.",
+        "This webpage make use of a bootstrap css script made free for use by Thomas Park. ", tags$a(href="https://bootswatch.com/", "Website "), tags$a(href="https://github.com/thomaspark/bootswatch", "Github")
+      )
+    )
   )
 )
 
@@ -142,7 +153,7 @@ server <- function (input, output, session){
               id = xValue,
               class="alert alert-dismissible alert-success",
               tags$p(
-                tags$style(paste0("#",xValue, "{color: ",clr,"}")),#.text{mix-blend-mode: difference}
+                tags$style(paste0("#",xValue, "{color: ",clr,"}")),
                 xValue
               ),
               actionButton(paste0("button",xValue), "X", class = "btn btn-default action-button close")
