@@ -145,7 +145,7 @@ server <- function (input, output, session){
           }
 
           #Here we only give it a list with the first element for XML to reduce data size, and cause only the first element is needed
-          rv$files <- rbind(rv$files, list(protein = xValue, xml = x[1], features = f, colors = clr))#Bind together to form labeled matrix
+          rv$files <- rbind(rv$files, list(protein = xValue, xml = x["name"], features = f, colors = clr))#Bind together to form labeled matrix
           #Insert the new UI component
           insertUI(
             selector = "#placeHolder",
@@ -285,8 +285,7 @@ server <- function (input, output, session){
                       types = list(type = isolate(rv$types$type), colors = isolate(rv$types$colors)),
                       descriptionSearch = list(type = isolate(rv$dess$type), colors = isolate(rv$dess$colors)),
                       offSetFeatures = list(type = isolate(rv$offset$type), colors = isolate(rv$offset$colors)),
-                      showProgress = FALSE,
-                      saveGlobal = FALSE
+                      showProgress = FALSE
           )
         })
       },error = function (cond){

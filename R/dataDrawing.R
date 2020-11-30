@@ -60,13 +60,8 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
   if("preComputed" %in% names(proteins)){#format must of list(xxxx = xxxx, xml = xmlData, features = featureData, colors = colorData)
     l <- proteins$preComputed
     xml <- l[,"xml"]
-    if(saveGlobal){
-      .GlobalEnv$uniProtProteinView_xmls <- xml
-      .GlobalEnv$uniProtProteinView_data <- unlist(l[,"features"], recursive = FALSE)
-    }else{
-      uniProtProteinView_xmls <- xml
-      uniProtProteinView_data <- l[,'features']
-    }
+    uniProtProteinView_xmls <- xml
+    uniProtProteinView_data <- l[,'features']
     colors <- assertColors(l[,"colors"])
   }else{
     #Stand way for user input
