@@ -77,6 +77,8 @@ uniprotProteinView::drawProtein(
 
 The author of the package is George Zorn. The xml retrieval functions make use of the `XML` and `httr` R packages for xml parsing and data retrieval, respectively. The plot drawing functions make use of the `plotly` R package in order to draw and label the plot. The package also makes use of Shiny to create an interactive app. Secondary inclusions are the `rgb()` function from `grDevices`, `runif()` from `stats`, and `download.file()`, `setTxtProgressBar()`, and `txtProgressBar()` functions from the `utils` package.
 
+The Shiny app also makes use of the Cerulean css file provided by [Bootswatch](https://bootswatch.com/cerulean/), free, opensource css themes.
+
 # References
 
 Chang, W., Cheng J., Allaire J., Xie Y., McPherson J. (2017). Shiny: web application framework for R.

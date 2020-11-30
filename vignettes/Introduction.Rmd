@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 # Overview
 
-This package provides the user the means to plot proteins with specified features plotted out, as provided from the UniProt API. There are six functions exported, the main two are `drawProtein()` and `runUniprotProteinView().` The other four are `getProtein(),` `getFeaturesDataFrame(),` `randomColor(),` and `ifelse().` The user will normally only need to use `drawProtein(),` the main drawing function, and `runUniprotProteinView(),` a function that starts the shiny app. If the user should wish to view an interactive shiny app, without calling the function `runUniprotProteinView(),` then they can do so at [Shiny App](https://zzaassaa2.shinyapps.io/proteinView/).
+This package provides the user the means to plot proteins with specified features plotted out, as provided from the UniProt API. There are four functions exported, the main two are `drawProtein()` and `runUniprotProteinView().` The other two are `getProtein()` and `getFeaturesDataFrame()`. The user will normally only need to use `drawProtein(),` the main drawing function, and `runUniprotProteinView(),` a function that starts the Shiny app. If the user should wish to view an interactive shiny app, without calling the function `runUniprotProteinView(),` then they can do so at [Shiny App](https://zzaassaa2.shinyapps.io/proteinView/).
 
 # Run Shiny App
 

@@ -3,8 +3,6 @@
 export(drawProtein)
 export(getFeaturesDataFrame)
 export(getProtein)
-export(ifelse)
-export(randomColor)
 export(runUniprotProteinDraw)
 import(XML)
 import(httr)

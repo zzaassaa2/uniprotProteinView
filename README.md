@@ -93,6 +93,10 @@ are the `rgb()` function from `grDevices`, `runif()` from `stats`, and
 `download.file()`, `setTxtProgressBar()`, and `txtProgressBar()`
 functions from the `utils` package.
 
+The Shiny app also makes use of the Cerulean css file provided by
+[Bootswatch](https://bootswatch.com/cerulean/), free, opensource css
+themes.
+
 # References
 
 Chang, W., Cheng J., Allaire J., Xie Y., McPherson J. (2017). Shiny: web

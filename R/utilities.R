@@ -27,7 +27,6 @@ ifelse <- function (condition, true, false){
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
-#' @export
 #' @importFrom stats runif
 #' @importFrom grDevices rgb
 randomColor <- function(){

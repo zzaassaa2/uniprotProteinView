@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 # Overview
 
-This vignette will go over all functions
+This vignette will go further in detail for the `drawProtein()` function, as well as review other functions provided by the package.
 
 # drawProtein
 
@@ -45,9 +45,10 @@ For colors, if the user leaves the element blank, then a random color will be ch
 uniprotProteinView::drawProtein(proteins = list(type = c("Q04206", "Q9D270"), colors = "red"))
 ```
 
-Then the first protein will be drawn red, while the second will be a random color. The function provides colors in a index fashion, where the element in the same index position will have that color assigned, and if no color is present, then a random color is given. The color can be given in with a string with a color name (example: `red`), in hexadecimal (example: `#ffffff`), or using the `rgb()` function (example: `rgb(0, 0.5, 1)`). Thus the user can use the following code to insert random color choice between specified color entries; note that the function recognizes the word "random" as the user wanting a random color
+Then the first protein will be drawn red, while the second will be a random color. The function provides colors in a index fashion, where the element in the same index position will have that color assigned, and if no color is present, then a random color is given. The color can be given in with a string with a color name (example: `red`), in hexadecimal (example: `#ffffff`), or using the `rgb()` function (example: `rgb(0, 0.5, 1)`), provided by the `grDevices` package. Thus the user can use the following code to insert random color choices between specified color entries. Note that the function recognizes the word "random" as the user wanting a random color.
 
 ```r
+#This will draw the first protein red, second random color, third green
 uniprotProteinView::drawProtein(proteins = list(type = c("Q04206", "Q9D270", "Q06628"), colors = c("red", "random", "green")))
 ```
 
@@ -57,25 +58,26 @@ For protein entries, the user has the option to also select a random entry as we
 uniprotProteinView::drawProtein("random")
 ```
 
-This will find a random human protein, as human is the default, to choose another organism, use the UniProt organism ID, an example using mouse (id = 10090)
+This will find a random human protein, as human is the default. To choose another organism, use the UniProt organism ID, an example using mouse (id = 10090):
 
 ```r
 uniprotProteinView::drawProtein("random orgid:10090")
 ```
 
-To specify how many randoms the user can use the `number` key word
+To specify how many randoms the user can use the `number` key word:
 
 ```r
 uniprotProteinView::drawProtein("random number:10")
 ```
 
-Thus, the above function will get 10 random human proteins, and graph them, putting it all together:
+The above function will get 10 random human proteins, and graph them, putting it all together:
 
 ```r
 #This function will draw the Q04206 protein red, and then 5 random mouse proteins, random colors
 uniprotProteinView::drawProtein(proteins = list(type = c("Q04206", "random orgid:10090 number:5"), colors = "red"))
 
-#As an alternative, you can also specify how many random colors are used as well, like so
+#As an alternative, you can also specify how many random colors are used as well, like so.
+#This will draw Q04206 red, 4 random proteins random colors, and the final random protein green
 uniprotProteinView::drawProtein(proteins = list(type = c("Q04206", "random orgid:10090 number:5"), colors = c("red", "random number:4", "green")))
 ```
 
@@ -88,7 +90,7 @@ To draw features on the protein, the format is the same, using type/colors list
 uniprotProteinView::drawProtein("Q04206", types = "domain")
 ```
 
-The types specifier does a literal search (capitalization ignored) for all feature names, and if they should match will draw them. These features are applied to all proteins. Colors for the features can be done in the same way as the proteins
+The types specifier does a literal search (capitalization ignored) for all feature names, and if they should match will draw them. These features are applied to all proteins. Colors for the features can be done in the same way as the proteins.
 
 ```r
 uniprotProteinView::drawProtein(proteins = list(type = c("Q04206", "random orgid:10090 number:5"), colors = c("red", "random number:4", "green")),
@@ -96,18 +98,17 @@ uniprotProteinView::drawProtein(proteins = list(type = c("Q04206", "random orgid
 )
 ```
 
-All features provided by the UniProt API have a name and a description. Thus the `types` argument will preform a literal search on all names, however you can also search the description using a pattern. The description search takes in a term, like "phos" and then searches through all descriptions to see if any of them have "phos" somewhere in the name, so "Phosphoserine" would return true. This argument is usually used to search for modified residues, as the name for them is "modified residue" while the description by be "Phosphoserine".
+All features provided by the UniProt API have a name and a description. Thus the `types` argument will preform a literal search on all names, however you can also search the description using a pattern. The description search takes in a term, like "phos" and then searches through all descriptions to see if any of them have "phos" somewhere in the name, so "Phosphoserine" would return true. This argument is usually used to search for modified residues, as the name for them is "modified residue" while the description would be "Phosphoserine".
 
 ```r
 #The input for the descriptionSearch argument is also of the same type/colors format, here we only give it a string, and thus it will have a random color applied to it
 uniprotProteinView::drawProtein(proteins = list(type = c("Q04206", "random orgid:10090 number:5"), colors = c("red", "random number:4", "green")),
   types = list(type = c("domain", "region of interest"), colors = c("black", "pink")),
-  descriptionSearch = "phos",
-  singleOffset = 0
+  descriptionSearch = "phos"
 )
-
-#If this function is run, the user will not see any modified residues, that is because the position of the modified residues start and stop at the same location. To fix this, set the argument `singleOffset` to something greater than 0. By default, it is set to 1. This argument is only used by the `descriptionSearch` features.
 ```
+
+Note that if it is difficult to see the description search terms, change the argument `singleOffset`. By default this is set to 1, if set to 0 will not draw any description search results.
 
 Some features the user may also want to offset set. Traditionally this is used for things such as secondary structure features, thus the `offSetFeatures` argument will do a literal search through the feature names, and if any should match will draw them, offset.
 
@@ -132,7 +133,7 @@ Other arguments that can be set by the function `drawProtein()` are:
 
 # runUniprotProteinView
 
-This function, when called, opens up a shiny app. Alternativly, the user can visit the webpage: [ShinyApp](https://zzaassaa2.shinyapps.io/proteinView/)
+This function, when called, opens up a shiny app. Alternatively, the user can visit the webpage: [ShinyApp](https://zzaassaa2.shinyapps.io/proteinView/)
 
 ```r
 uniprotProteinView::runUniprotProteinDraw()
@@ -140,10 +141,10 @@ uniprotProteinView::runUniprotProteinDraw()
 
 # getProtein
 
-This function is the main function to retrieve XML data from the UniProt API. It will handle all data retrieval for the user. It is exported primarily for use by the Shiny App
+This function is the main function to retrieve XML data from the UniProt API. It will handle all data retrieval for the user. It is exported primarily for use by the Shiny App. For arguments this function
 
 ```r
-webPageData <- uniprotProteinView::confirmStatus("Q04206", FALSE)
+webPageData <- uniprotProteinView::getProtein("Q04206", FALSE)
 ```
 
 # getFeaturesDataFrame
@@ -151,15 +152,22 @@ webPageData <- uniprotProteinView::confirmStatus("Q04206", FALSE)
 This function is used to parse a list of proteins, and return a list of equal size, where instead of protein XML data, is a data frame of all the features that the protein contains. Exported primarily for use by the Shiny App
 
 ```r
-webPageData <- uniprotProteinView::confirmStatus("Q04206", FALSE)
+webPageData <- uniprotProteinView::getProtein("Q04206", FALSE)
 features <- uniprotProteinView::getFeaturesDataFrame(webPageData)
 ```
 
-# randomColor
+# Alternative argument providing
 
-This is a utility function primarily intended for use by the shiny app. This function will return a random rgb color
+Alternatively, if the user wishes to provide arguments to the `drawProtein()` function after using the XML and features data frame, they can. To do this, use the following format:
 
 ```r
-color <- uniprotProteinView::randomColor()
+xml <- uniprotProteinView::getProtein("Q04206", FALSE)
+features <- uniprotProteinView::getFeaturesDataFrame(xml)
+
+matrix <- rbind(list(xml = xml, features = features, colors = "red"))
+
+uniprotProteinView::drawProtein(proteins = list(preComputed = matrix))
 ```
+
+The `preComputed` method, must provide the function with a list containing a named element called "preComputed". This should itself have a matrix with column names of "xml", "features", and "colors".
 

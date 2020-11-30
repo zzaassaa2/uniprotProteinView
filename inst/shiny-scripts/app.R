@@ -1,8 +1,7 @@
 library("shiny")
 
-
 ui <- fluidPage(
-  theme = "bootstrap.css", #Load bootstrap css
+  theme = "bootstrap.css", #Load bootstrap css see: https://bootswatch.com/cerulean/
   tagList(tags$head(tags$title("uniprotProteinView")), div(class = "col-sm-12 jumbotron", h1("uniprotProteinView"))),
   tags$div(
   class = "card bg-light mb-3",
@@ -21,6 +20,9 @@ ui <- fluidPage(
     p(class="card-text","To start, search for your protein key_code from ", a(href = "https://www.uniprot.org/", "UniProt.")),
     p(class="card-text","An example is the ", a(href="https://www.uniprot.org/uniprot/Q06628", "Atg13 protein"), " which is found at ", a(href = "https://www.uniprot.org/uniprot/Q06628", "https://www.uniprot.org/uniprot/Q06628"), ", and the protein key_code is thus Q06628."),
     p(class="card-text","Multiple proteins can be searched at once by leaving a space between entries."),
+    p(class="card-text","The user can also search random proteins by typing \"random\". Typing \"random|number:2\" will generate two random proteins, with the number being interchangable. By default ",
+      "the \"random\" key word will use the organism id (orgid) for humans: 9906. If the user wishes to change this, preform the opperation like \"random|orgid:10090\", the organism id for mice. ",
+    "Putting this all together: \"random|number:5|orgid:10090\" will generate 5 random mouse proteins"),
     p(class="card-text", "For more information, or references, see the github site: ", a(href = "https://github.com/zzaassaa2/uniprotProteinView", "uniprotProteinView."))
     )
   ),
@@ -60,8 +62,6 @@ ui <- fluidPage(
     )
   ),
   actionButton("updateGraph", label = "Update Graph", class = "btn btn-default action-button btn-outline-primary"),
-  actionButton("testButton", label = "test", class = "btn btn-default action-button btn-outline-primary"),
-  div(id = "test"),
   fluidRow(
     plotly::plotlyOutput("graph")
   )
@@ -94,9 +94,16 @@ server <- function (input, output, session){
 
     for(i in seq_along(spt)){
       s <- spt[[i]] #input
+
+      k <- rv$files[rv$files[,1] == s,]
+      if(length(k) > 0){
+        showNotification(paste0(s, " already exists. Skipping"))
+        next
+      }
+
+      xml <- NULL#This is required, cause there is some stupid memory allocation error that be thrown, so in case of that...
       withProgress(message = "Retrieving Protein Information", value = 1, {
         tryCatch({
-          #s <- gsub("\\|+", " ", s)
           suppressWarnings(xml <- uniprotProteinView::getProtein(s, FALSE))#Get the protein
         },error = function (cond){
           showNotification(paste0("The following error was thrown while trying to retrieve Protein data for the input: ",s,
@@ -105,7 +112,7 @@ server <- function (input, output, session){
       })
       l <- length(xml)
 
-      if(l > 0){#If a value was retrieved
+      if(!is.null(xml) && l > 0){#If a value was retrieved
         features <- uniprotProteinView::getFeaturesDataFrame(xml)#Get feature dataframe Only bother getting this, if there is value to the xml
 
         #this function is mandatory, and in general recommended, for all shiny loops, cause other wise it just doesn't work
@@ -113,16 +120,31 @@ server <- function (input, output, session){
           x <- xml[[i]]
           f <- features[[i]]
           xValue <- x[[1]]
+          k <- rv$files[rv$files[,1] == xValue,]
+          #This is placed here to catch for the random protein function
+          if(length(k) > 0){
+            showNotification(paste0(s, " already exists. Skipping"))
+            next
+          }
 
-          #Bind together to form labeled matrix
-          rv$files <- rbind(rv$files, list(protein = xValue, xml = x, features = f, colors = if(input$fileChooseColor == ""){ uniprotProteinView::randomColor() }else { input$fileChooseColor }))
+          if(input$fileChooseColor == ""){
+            clr <- "random"
+          }else{
+            clr <- input$fileChooseColor
+          }
+
+          #Here we only give it a list with the first element for XML to reduce data size, and cause only the first element is needed
+          rv$files <- rbind(rv$files, list(protein = xValue, xml = x[1], features = f, colors = clr))#Bind together to form labeled matrix
           #Insert the new UI component
           insertUI(
             selector = "#placeHolder",
             ui = tags$div(
               id = xValue,
               class="alert alert-dismissible alert-success",
-              tags$p(xValue),
+              tags$p(
+                tags$style(paste0("#",xValue, "{color: ",clr,"}")),#.text{mix-blend-mode: difference}
+                xValue
+              ),
               actionButton(paste0("button",xValue), "X", class = "btn btn-default action-button close")
             )
           )
@@ -151,7 +173,7 @@ server <- function (input, output, session){
   observeEvent(input$addType, {
     if(input$selectType != ""){
       rv$types$type <- append(rv$types$type, input$selectType)
-      rv$types$colors <- append(rv$types$colors, if(input$typeChooseColor == ""){ uniprotProteinView::randomColor() }else { input$typeChooseColor })
+      rv$types$colors <- append(rv$types$colors, if(input$typeChooseColor == ""){ "random" }else { input$typeChooseColor })
 
       k <- gsub(" ", "_", input$selectType)
       insertUI(
@@ -159,7 +181,10 @@ server <- function (input, output, session){
         ui = tags$div(
           id = k,
           class = "alert alert-dismissible alert-success",
-          tags$p(k),
+          tags$p(
+            tags$style(paste0("#",xValue, "{color: ",clr,"}")),#.text{mix-blend-mode: difference}
+            k
+          ),
           actionButton(paste0("button", k), "X", class = "btn btn-default action-button close")
         )
       )
@@ -175,7 +200,7 @@ server <- function (input, output, session){
   observeEvent(input$addDesSearch, {
     if(input$selectDesSearch != ""){
       rv$dess$type <- append(rv$dess$type, input$selectDesSearch)
-      rv$dess$colors <- append(rv$dess$colors, if(input$dessChooseColor == ""){ uniprotProteinView::randomColor() }else { input$dessChooseColor })
+      rv$dess$colors <- append(rv$dess$colors, if(input$dessChooseColor == ""){ "random" }else { input$dessChooseColor })
 
       k <- gsub(" ", "_", input$selectDesSearch)
       insertUI(
@@ -199,7 +224,7 @@ server <- function (input, output, session){
   observeEvent(input$addOffset, {
     if(input$selectOffset != ""){
       rv$offset$type <- append(rv$offset$type, input$selectOffset)
-      rv$offset$colors <- append(rv$offset$colors, if(input$offsetChooseColor == ""){ uniprotProteinView::randomColor() }else { input$offsetChooseColor })
+      rv$offset$colors <- append(rv$offset$colors, if(input$offsetChooseColor == ""){ "random" }else { input$offsetChooseColor })
 
       k <- gsub(" ", "_", input$selectOffset)
       insertUI(
@@ -220,10 +245,9 @@ server <- function (input, output, session){
   })
 
   #Main plot
-  observeEvent(input$updateGraph, {#todo issue?
+  observeEvent(input$updateGraph, {
     withProgress(message = "Generating Plot", value = 1,{
       tryCatch({
-        .GlobalEnv$k <- rv$files
         output$graph <- plotly::renderPlotly({
           uniprotProteinView::drawProtein(proteins = list(preComputed = isolate(rv$files)),
                       types = list(type = isolate(rv$types$type), colors = isolate(rv$types$colors)),
@@ -244,8 +268,3 @@ server <- function (input, output, session){
 }
 
 shiny::shinyApp(ui, server)
-
-
-#todo make standard accross code gsub("\\|+", " ", s)
-#todo reduce size try xml
-#>>>todo random httr2 error, might must be ide
