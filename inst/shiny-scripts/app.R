@@ -184,8 +184,8 @@ server <- function (input, output, session){
       },error = function (cond){
         showNotification(paste0("The following error was thrown while trying to retrieve Protein data for the input: ",
                                 " generating the error: ", cond), type = "error")
-      }, warning = function (cond){
-        showNotification(paste("Warning thrown while trying to retrieve proteins:", cond), type = "warning")
+      },warning = function (cond){
+        showNotification(cond, type = "warning")
       })
 
       if(!is.null(xml) && length(xml) > 0){#if no error, and something was retrieved
@@ -234,6 +234,14 @@ server <- function (input, output, session){
             rv$files <- k
           })
         })
+      }else{
+        if(is.null(xml)){
+          showNotification("Error when trying to retrieve proteins", type = "error")
+        }else if(length(xml) == 0){
+          showNotification("Incorrect input", type = "warning")
+        }else{
+          showNotification("Unknown error thrown", type = "error")
+        }
       }
     })
   })

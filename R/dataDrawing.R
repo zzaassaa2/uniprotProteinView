@@ -48,7 +48,7 @@
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
 #' @export
-#' @import plotly
+#' @importFrom plotly plot_ly layout
 drawProtein <- function(proteins, types = list(), descriptionSearch = list(), offSetFeatures = list(), title = NULL, saveGlobal = FALSE,
                         btwnSpacingStart = 1, btwnSpacing = 0.3, showProgress = TRUE){
   #This is used by the shiny app to directly add xml and feature data
@@ -195,7 +195,7 @@ assertColors <- function (colorsIn){
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
-#' @import plotly
+#' @importFrom plotly add_trace
 drawChain <- function(figure, xi, xf, yi, yf, info, clr){
   #Removes any information after and including the ";" character
   nameIn <- gsub("\\;.*","", info)
@@ -249,8 +249,6 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr){
 #' @return Returns figure will all matching features drawn on
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
-#'
-#' @import plotly
 drawFeature <- function(figure, d, toParse, condition, yStart, yStop, indent = TRUE){
   #These two functions are used in case the user should provide a list with type and color specified, or just a regular list or vector
   typeParse <- ifelse("type" %in% names(toParse), toParse$type, toParse)
@@ -282,3 +280,12 @@ drawFeature <- function(figure, d, toParse, condition, yStart, yStop, indent = T
 
   return(list(figure = figure, actionPreformed = foundAny))
 }
+
+
+#source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataParse.R")
+#source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataRetrieval.R")
+#source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/utilities.R")
+#
+#drawProtein("Q04206",
+#            types = list(type = "modified residue"),
+#            saveGlobal = TRUE)
