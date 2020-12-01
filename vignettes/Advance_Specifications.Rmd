@@ -108,8 +108,6 @@ uniprotProteinView::drawProtein(proteins = list(type = c("Q04206", "random orgid
 )
 ```
 
-Note that if it is difficult to see the description search terms, change the argument `singleOffset`. By default this is set to 1, if set to 0 will not draw any description search results.
-
 Some features the user may also want to offset set. Traditionally this is used for things such as secondary structure features, thus the `offSetFeatures` argument will do a literal search through the feature names, and if any should match will draw them, offset.
 
 ```r

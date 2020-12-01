@@ -66,8 +66,7 @@ uniprotProteinView::drawProtein(
   proteins = list(type = c("Q04206", "Q9D270"), colors = c("green", "green")),
   types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
   descriptionSearch = list(type = "phos", colors = "blue"),
-  offSetFeatures = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple")),
-  singleOffset = 2
+  offSetFeatures = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple"))
 )
 ```
 

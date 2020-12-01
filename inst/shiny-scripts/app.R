@@ -1,5 +1,51 @@
 library("shiny")
 
+assertColors <- function (colorsIn){
+  colorsIn <- strsplit(colorsIn, "\\s+")[[1]]
+  colorsIn <- unlist(colorsIn)#This is needed cause apparently the startsWith function doesn't like lists
+  strWith <- startsWith(colorsIn, "random")
+
+  if(length(strWith) > 0){#If no featueres that start with "random", then move on
+    out <- vector(mode = "list", length = length(colorsIn))
+    offset <- 1#This variable is used for when a random also includes an amount that, such as "random number:3"
+
+    for(i in seq_along(colorsIn)){
+      #Sees if there was an element that started with "random"
+      if(strWith[[i]]){
+        str <- gsub("\\|+", " ", colorsIn[[i]])
+        str <- strsplit(str[[i]], "\\s+")[[1]]#Splits by white space
+        number <- str[startsWith(str, "number")]#If the number feature was specified
+        #If number was added, then use what is after the ":", if not, then character(0) is returned, so just use 1
+        number <- ifelse(identical(character(0), number), 1, sub(".*:", "", number))
+        number <- suppressWarnings(as.numeric(number))
+        number <- ifelse(is.na(number), 1, number)
+
+        if(number != 1){
+          #Expands the output size
+          k <- length(out) + number - 1
+          out <- out[1:k]
+
+          for(j in 1:number){#Adds random for each entry
+            out[offset] <- "random"
+            offset <- offset + 1
+          }
+        }else{
+          out[offset] <- "random"
+          offset <- offset + 1
+        }
+      }else{
+        #If random was not specified, then just add the color in
+        out[offset] <- colorsIn[[i]]
+        offset <- offset + 1
+      }
+    }
+
+    return(out)#Returned if there was at least one instance of "random"
+  }
+
+  return(colorsIn)#Returned if there were not instances of "random"
+}
+
 ui <- fluidPage(
   theme = "bootstrap.css", #Load bootstrap css see: https://bootswatch.com/cerulean/
   tagList(tags$head(tags$title("uniprotProteinView")), div(class = "col-sm-12 jumbotron", h1("uniprotProteinView"))),
@@ -23,10 +69,19 @@ ui <- fluidPage(
     p(class="card-text","The user can also search random proteins by typing \"random\". Typing \"random|number:2\" will generate two random proteins, with the number being interchangable. By default ",
       "the \"random\" key word will use the organism id (orgid) for humans: 9906. If the user wishes to change this, preform the opperation like \"random|orgid:10090\", the organism id for mice. ",
     "Putting this all together: \"random|number:5|orgid:10090\" will generate 5 random mouse proteins"),
-    p(class="card-text", "For more information, or references, see the github site: ", a(href = "https://github.com/zzaassaa2/uniprotProteinView", "uniprotProteinView."))
+    p(class = "card-text", "The user can also specify colors, by using either color name or hecadecimal. For color names, if an invalid color name is givin, then it will show up ",
+      "grey. Color names can only be one word. If the user specifies a color, then the protein with that color will inherit the color for their text color. If the user gives two proteins at once, and only ",
+    "one color, then the first will inherit that color, and the second will have a random color. The user can also specify \"random\" to have a random color given. Thus, if the user gives two proteins, and they ",
+      "want the second to have a desired color, type \"random red\", and the first will have a random color, and the second will be red. The user can also use similar random format as protein input to specify number. ",
+    "They can type \"random|number:2\" to give the first two proteins a random color. Thus an exmaple would be to give the protein input \"random|number:3 Q04206\" and color input \"random|number:2 red green\". ",
+      "This will generate 3 random proteins, with the last being red, and the Q04206 protein green. This color syntax only applies to protein selection and not to type, description, or offset choosing."),
+    p(class="card-text", "The use of | for specifing conditions only applies to the Shiny app, for equivilant syntax for when using pure R code, see the vignettes."),
+    p(class="card-text", "For more information, or reference, see the github site: ", a(href = "https://github.com/zzaassaa2/uniprotProteinView", "uniprotProteinView."))
     )
   ),
+
   hr(),
+
   fluidRow(
     column(3,
            wellPanel(#File chooser
@@ -61,10 +116,12 @@ ui <- fluidPage(
            )
     )
   ),
+
   actionButton("updateGraph", label = "Update Graph", class = "btn btn-default action-button btn-outline-primary"),
   fluidRow(
     plotly::plotlyOutput("graph")
   ),
+
   tags$div(
     class="card text-white bg-primary mb-3",
     tags$div(
@@ -98,71 +155,76 @@ server <- function (input, output, session){
     }
   })
 
-  observeEvent(input$addFile,{
-    str <- gsub("^\\s+|\\s+$", "", input$file)#trim spaces
-    spt <- strsplit(str, "\\s+")[[1]]#split on space
-    error <- NULL#error output, if there is/was one
+  observeEvent(input$addFile, {
+    withProgress(message = "Retrieving proteins", value = 0, {
+      n <- 5#Used for ease of use for incProgress
+      incProgress(1/n, detail = "Parsing input")
+      str <- gsub("^\\s+|\\s+$", "", input$file)#Trim
+      spt <- as.list(strsplit(str, "\\s+")[[1]])#Split into individual components, and convert to list for easy element deletion
 
-    for(i in seq_along(spt)){
-      s <- spt[[i]] #input
+      #Iterate through each entry and check if it already has been added, if so, set to NULL as getProtein function will deal with it
+      incProgress(1/n, detail = "Checking for conflicts")
+      for(i in seq_along(spt)){
+        s <- spt[[i]]
+        if(startsWith(s, "random")){#If it starts with random, then just move on
+          next
+        }
 
-      k <- rv$files[rv$files[,1] == s,]
-      if(length(k) > 0){
-        showNotification(paste0(s, " already exists. Skipping"))
-        next
+        k <- rv$files[rv$files[,1] == s,]
+        if(length(k) > 0){
+          showNotification(paste0(s, " already exists. Skipping"))
+          spt[[i]] <- NULL
+        }
       }
 
-      xml <- NULL#This is required, cause there is some stupid memory allocation error that be thrown, so in case of that...
-      withProgress(message = "Retrieving Protein Information", value = 1, {
-        tryCatch({
-          suppressWarnings(xml <- uniprotProteinView::getProtein(s, FALSE))#Get the protein
-        },error = function (cond){
-          showNotification(paste0("The following error was thrown while trying to retrieve Protein data for the input: ",s,
-                                  " generating the error:\n", cond), type = "error")
-        })
+      incProgress(1/n, detail = "Retrieving proteins, this may take some time")
+      xml <- NULL #This is needed if error is thrown, just to make sure the variable exists
+      tryCatch({
+        xml <- suppressWarnings(uniprotProteinView::getProtein(spt, FALSE))#Get protein xml data
+      },error = function (cond){
+        showNotification(paste0("The following error was thrown while trying to retrieve Protein data for the input: ",
+                                " generating the error: ", cond), type = "error")
       })
-      l <- length(xml)
 
-      if(!is.null(xml) && l > 0){#If a value was retrieved
-        features <- uniprotProteinView::getFeaturesDataFrame(xml)#Get feature dataframe Only bother getting this, if there is value to the xml
+      if(!is.null(xml) && length(xml) > 0){#if no error, and something was retrieved
+        incProgress(1/n, detail = "Generating dataframe")
+        features <- NULL#This is if there is an error for the feature dataframe getting, needed for if the random protein is bad xml
+        tryCatch({
+          features <- uniprotProteinView::getFeaturesDataFrame(xml)#Get features dataframe
+        }, error = function (cond){
+          showNotification(paste("Error while attempting to generate features data frame. Original error message as follows:",cond))
+        })
+        colors <- assertColors(input$fileChooseColor)
 
-        #this function is mandatory, and in general recommended, for all shiny loops, cause other wise it just doesn't work
-        lapply(seq_along(xml), function (i){
-          x <- xml[[i]]
-          f <- features[[i]]
-          xValue <- x[[1]]
-          k <- rv$files[rv$files[,1] == xValue,]
-          #This is placed here to catch for the random protein function
-          if(length(k) > 0){
-            showNotification(paste0(s, " already exists. Skipping"))
-            next
-          }
-
-          if(input$fileChooseColor == ""){
-            clr <- "random"
+        #Iterate through each,
+        incProgress(1/n, detail = "Adding proteins")
+        lapply(seq_along(xml), function (j){
+          prot <- xml[[j]]
+          protFet <- features[[j]]
+          if(j <= length(colors)){
+            clr <- colors[[j]]
           }else{
-            clr <- input$fileChooseColor
+            clr <- "random"
           }
 
-          #Here we only give it a list with the first element for XML to reduce data size, and cause only the first element is needed
-          rv$files <- rbind(rv$files, list(protein = xValue, xml = x["name"], features = f, colors = clr))#Bind together to form labeled matrix
-          #Insert the new UI component
+          xValue <- prot[[1]]
+          rv$files <- rbind(rv$files, list(protein = xValue, xml = prot["name"], features = protFet, colors = clr))
+          k2 <- paste0(xValue, input$addFile)
           insertUI(
             selector = "#placeHolder",
             ui = tags$div(
-              id = xValue,
-              class="alert alert-dismissible alert-success",
+              id = k2,
+              class = "alert alert-dismissible alert-success",
               tags$p(
-                tags$style(paste0("#",xValue, "{color: ",clr,"}")),
+                tags$style(paste0("#", k2, "{color: ", clr, "}")),
                 xValue
               ),
-              actionButton(paste0("button",xValue), "X", class = "btn btn-default action-button close")
+              actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
             )
           )
-          #Add event for when the delete button is pressed
-          observeEvent(input[[paste0("button", xValue)]],{
-            removeUI(selector = paste0("#", xValue))
-            #Removes element(s) when button pressed
+
+          observeEvent(input[[paste0("button", k2)]], {
+            removeUI(selector = paste0("#", k2))
             k <- rv$files[rv$files[,1] != xValue,]
             if(is.vector(k)){
               k <- rbind(NULL, list(protein = k[[1]], xml = k[[2]], features = k[[3]], colors = k[[4]]))
@@ -170,14 +232,8 @@ server <- function (input, output, session){
             rv$files <- k
           })
         })
-      }else{
-        error <- paste(error, s)
       }
-    }
-
-    if(!is.null(error)){
-      showNotification(paste("Invalid input for:", error), type = "warning")
-    }
+    })
   })
 
   #Type event
@@ -192,22 +248,22 @@ server <- function (input, output, session){
       rv$types$colors <- append(rv$types$colors, clr)
 
       k <- gsub(" ", "_", input$selectType)
+      k2 <- paste0("addType_",k, input$addType)
       insertUI(
         selector = "#addedTypes",
         ui = tags$div(
-          id = k,
+          id = k2,
           class = "alert alert-dismissible alert-success",
           tags$p(
-            tags$style(paste0("#",k, "{color: ",clr,"}")),
+            tags$style(paste0("#",k2, "{color: ",clr,"}")),
             k
           ),
-          actionButton(paste0("button", k), "X", class = "btn btn-default action-button close")
+          actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
         )
       )
-      observeEvent(input[[paste0("button", k)]],{
-        print(k)
-        removeUI(selector = paste0("#", k))
-        rv$types <- rv$types[rv$types$type != k]
+      observeEvent(input[[paste0("button", k2)]],{
+        removeUI(selector = paste0("#", k2))
+        rv$types <- rv$types[rv$types$type != input$selectType]
       })
     }
   })
@@ -224,22 +280,22 @@ server <- function (input, output, session){
       rv$dess$colors <- append(rv$dess$colors, clr)
 
       k <- gsub(" ", "_", input$selectDesSearch)
+      k2 <- paste0("addDesSearch_",k, input$addDesSearch)
       insertUI(
         selector = "#addedDesSearch",
         ui = tags$div(
-          id = k,
+          id = k2,
           class = "alert alert-dismissible alert-success",
           tags$p(
-            tags$style(paste0("#",k, "{color: ",clr,"}")),
+            tags$style(paste0("#",k2, "{color: ",clr,"}")),
             k
           ),
-          actionButton(paste0("button", k), "X", class = "btn btn-default action-button close")
+          actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
         )
       )
-      observeEvent(input[[paste0("button", k)]],{
-        print(k)
-        removeUI(selector = paste0("#", k))
-        rv$dess <- rv$dess[rv$dess$type != k]
+      observeEvent(input[[paste0("button", k2)]],{
+        removeUI(selector = paste0("#", k2))
+        rv$dess <- rv$dess[rv$dess$type != input$selectDesSearch]
       })
     }
   })
@@ -256,44 +312,49 @@ server <- function (input, output, session){
       rv$offset$colors <- append(rv$offset$colors, clr)
 
       k <- gsub(" ", "_", input$selectOffset)
+      k2 <- paste0("addOffset_",k, input$addOffset)
       insertUI(
         selector = "#addedOffset",
         ui = tags$div(
-          id = k,
+          id = k2,
           class = "alert alert-dismissible alert-success",
           tags$p(
-            tags$style(paste0("#",k, "{color: ",clr,"}")),
+            tags$style(paste0("#",k2, "{color: ",clr,"}")),
             k
           ),
-          actionButton(paste0("button", k), "X", class = "btn btn-default action-button close")
+          actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
         )
       )
-      observeEvent(input[[paste0("button", k)]],{
-        print(k)
-        removeUI(selector = paste0("#", k))
-        rv$offset <- rv$offset[rv$offset$type != k]
+      observeEvent(input[[paste0("button", k2)]],{
+        removeUI(selector = paste0("#", k2))
+        rv$offset <- rv$offset[rv$offset$type != input$selectOffset]
       })
     }
   })
 
   #Main plot
   observeEvent(input$updateGraph, {
-    withProgress(message = "Generating Plot", value = 1,{
-      tryCatch({
-        output$graph <- plotly::renderPlotly({
-          uniprotProteinView::drawProtein(proteins = list(preComputed = isolate(rv$files)),
-                      types = list(type = isolate(rv$types$type), colors = isolate(rv$types$colors)),
-                      descriptionSearch = list(type = isolate(rv$dess$type), colors = isolate(rv$dess$colors)),
-                      offSetFeatures = list(type = isolate(rv$offset$type), colors = isolate(rv$offset$colors)),
-                      showProgress = FALSE
-          )
+    if(!is.null(rv$files) && nrow(rv$files) > 0){
+      withProgress(message = "Generating Plot", value = 1,{
+        tryCatch({
+          output$graph <- plotly::renderPlotly({
+            uniprotProteinView::drawProtein(proteins = list(preComputed = isolate(rv$files)),
+                                            types = list(type = isolate(rv$types$type), colors = isolate(rv$types$colors)),
+                                            descriptionSearch = list(type = isolate(rv$dess$type), colors = isolate(rv$dess$colors)),
+                                            offSetFeatures = list(type = isolate(rv$offset$type), colors = isolate(rv$offset$colors)),
+                                            showProgress = FALSE
+            )
+          })
+          showNotification("Plot generated, this may take a moment to show up", duration = 4)
+        },error = function (cond){
+          showNotification(paste0("The following error was thrown while trying to generate graph:\n", cond), type = "error")
+        }, warning = function (cond){
+          showNotification(paste0("The following warning was thrown while trying to generate graph:\n", cond), type = "warning")
         })
-      },error = function (cond){
-        showNotification(paste0("The following error was thrown while trying to generate graph:\n", cond), type = "error")
-      }, warning = function (cond){
-        showNotification(paste0("The following warning was thrown while trying to generate graph:\n", cond), type = "warning")
       })
-    })
+    }else{
+      showNotification("Empty graph input", type = "warning", duration = 2)
+    }
   })
 
 }

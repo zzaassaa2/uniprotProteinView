@@ -30,11 +30,6 @@
 #' equal a rgb() value, string of a color, or the word in order "random" for a random color, to
 #' specify what color the element in the same order will be
 #'
-#' @param singleOffset The offset +- by parameter value used for rendering features specified
-#' using the parameter dess, as these entries are noramally reserved for protein modifications,
-#' which are single amino acids, and thus would not render otherwise, thus this parameter allows
-#' the user to specify how thick they will show up.
-#'
 #' @param title The title that the plot will inherit
 #'
 #' @param saveGlobal If the function will save the protein XML data and feature dataframe
@@ -54,7 +49,7 @@
 #'
 #' @export
 #' @import plotly
-drawProtein <- function(proteins, types = list(), descriptionSearch = list(), offSetFeatures = list(), singleOffset = 1, title = NULL, saveGlobal = FALSE,
+drawProtein <- function(proteins, types = list(), descriptionSearch = list(), offSetFeatures = list(), title = NULL, saveGlobal = FALSE,
                         btwnSpacingStart = 1, btwnSpacing = 0.3, showProgress = TRUE){
   #This is used by the shiny app to directly add xml and feature data
   if("preComputed" %in% names(proteins)){#format must of list(xxxx = xxxx, xml = xmlData, features = featureData, colors = colorData)
@@ -91,7 +86,7 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
     #Draws all stand features by if the name is a literal match (excluding capatilization) to the input
     figure <- drawFeature(figure, d, types, function(type) tolower(d$type) == tolower(type), yStart, yStop = yStart + 1)$figure
     #Draws all features that contain the given string in their description
-    figure <- drawFeature(figure, d, descriptionSearch, function(type) grepl(tolower(type), tolower(d$description), fixed = TRUE), yStart, yStop = yStart + 1, offset = singleOffset)$figure
+    figure <- drawFeature(figure, d, descriptionSearch, function(type) grepl(tolower(type), tolower(d$description), fixed = TRUE), yStart, yStop = yStart + 1)$figure
 
     #Draws all features that are wished to be drawn offset.
     f <- drawFeature(figure, d, offSetFeatures, function (type) tolower(d$type) == tolower(type), yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
@@ -149,10 +144,12 @@ assertColors <- function (colorsIn){
         number <- str[startsWith(str, "number")]#If the number feature was specified
         #If number was added, then use what is after the ":", if not, then character(0) is returned, so just use 1
         number <- ifelse(identical(character(0), number), 1, sub(".*:", "", number))
+        number <- suppressWarnings(as.numeric(number))
+        number <- ifelse(is.na(number), 1, number)
 
         if(number != 1){
           #Expands the output size
-          k <- length(out) + as.numeric(number) - 1
+          k <- length(out) + number - 1
           out <- out[1:k]
 
           for(j in 1:number){#Adds random for each entry
@@ -201,14 +198,19 @@ assertColors <- function (colorsIn){
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
 #' @import plotly
-drawChain <- function(figure, xi, xf, yi, yf, info, clr, offset = 0){
+drawChain <- function(figure, xi, xf, yi, yf, info, clr){
   #Removes any information after and including the ";" character
   nameIn <- gsub("\\;.*","", info)
   #Limits the max legend size for the name to be 30 characters
   if(!is.na(nameIn) && nchar(nameIn) >= 30) nameIn <- paste0(substr(nameIn, 1, 30), "...")
 
+  if(xf - xi == 0){
+    xi <- xi - 1
+    xf <- xf + 1
+  }
+
   plotly::add_trace(figure,
-                    x = c(xi-offset, xi-offset, xf+offset, xf+offset),
+                    x = c(xi, xi, xf, xf),
                     y = c(yi, yf, yf, yi),
                     fill = "toself",
                     fillcolor = clr,
@@ -250,7 +252,7 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr, offset = 0){
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
 #' @import plotly
-drawFeature <- function(figure, d, toParse, condition, yStart, yStop, offset = 0, indent = TRUE){
+drawFeature <- function(figure, d, toParse, condition, yStart, yStop, indent = TRUE){
   #These two functions are used in case the user should provide a list with type and color specified, or just a regular list or vector
   typeParse <- ifelse("type" %in% names(toParse), toParse$type, toParse)
   colors <- ifelse("colors" %in% names(toParse), toParse$colors, NULL)
@@ -264,15 +266,31 @@ drawFeature <- function(figure, d, toParse, condition, yStart, yStop, offset = 0
     found <- d[condition(type),]#Get any features of the condition type, should there by any
     if(dim(found)[1] != 0) foundAny <- TRUE #Used to show that elements were drawn to screen, needed for offset features
 
-    for(k in seq_along(found)){
-      row <- found[k,]
-      #Used by the legend, so that the main chain isn't indented, while all features for the protiein are indented on the legend
-      info <- ifelse(indent, paste0("    ", row$description), row$description)
-      xi <- row$begin
-      xf <- row$end
-      figure <- drawChain(figure, xi, xf, yStart, yStop, info, clr, offset)
+    if(!is.null(found) && nrow(found) > 0){
+      for(k in seq_along(found)){
+        row <- found[k,]
+
+        if(!is.na(row[,1])){#Used to make sure a NA table isn't returned
+          #Used by the legend, so that the main chain isn't indented, while all features for the protiein are indented on the legend
+          info <- ifelse(indent, paste0("    ", row$description), row$description)
+          xi <- row$begin
+          xf <- row$end
+          figure <- drawChain(figure, xi, xf, yStart, yStop, info, clr)
+        }
+      }
     }
   }
 
   return(list(figure = figure, actionPreformed = foundAny))
 }
+
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataParse.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataRetrieval.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/utilities.R")
+
+drawProtein(
+  proteins = list(type = c("Q04206", "Q9D270"), colors = c("green", "green")),
+  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+  descriptionSearch = list(type = "phos", colors = "blue"),
+  offSetFeatures = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple"))
+)

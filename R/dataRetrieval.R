@@ -18,7 +18,7 @@
 #' @export
 #' @import XML
 #' @importFrom utils setTxtProgressBar txtProgressBar
-getProtein <- function(source, showProgress){
+getProtein <- function(source, showProgress = TRUE){
   out <- vector(mode = "list", length = length(source))
 
   if(showProgress){
@@ -50,17 +50,21 @@ getProtein <- function(source, showProgress){
       number <- spt[startsWith(spt, "number")]
       orgid <- spt[startsWith(spt, "orgid")]
 
-      #These two functions handle if there is or isn't the key word "number" or "orgid" provided, respectivly
+      #These functions handle if there is or isn't the key word "number" or "orgid" provided, respectivly
       number <- ifelse(identical(character(0), number), 1, sub(".*:", "", number))
-      orgid <- ifelse(identical(character(0), orgid), "9606", sub(".*:", "", orgid))
+      number <- suppressWarnings(as.numeric(number))
+      number <- ifelse(is.na(number), 1, number)
+      orgid <- ifelse(identical(character(0), orgid), 9606, sub(".*:", "", orgid))
+      orgid <- suppressWarnings(as.numeric(orgid))
+      orgid <- ifelse(is.na(orgid), 9606, orgid)
 
       if(number != 1){
         #Expands output size
-        k <- length(out) + as.numeric(number) - 1
+        k <- length(out) + number - 1
         out <- out[1:k]
 
         for(j in 1:number){
-          out[offset] <- getRandomProtein(orgid)
+          out[offset] <- getRandomProtein(orgID = orgid)
           offset <- offset + 1
         }
       }else{
