@@ -180,10 +180,12 @@ server <- function (input, output, session){
       incProgress(1/n, detail = "Retrieving proteins, this may take some time")
       xml <- NULL #This is needed if error is thrown, just to make sure the variable exists
       tryCatch({
-        xml <- suppressWarnings(uniprotProteinView::getProtein(spt, FALSE))#Get protein xml data
+        xml <- uniprotProteinView::getProtein(spt, FALSE)#Get protein xml data
       },error = function (cond){
         showNotification(paste0("The following error was thrown while trying to retrieve Protein data for the input: ",
                                 " generating the error: ", cond), type = "error")
+      }, warning = function (cond){
+        showNotification(paste("Warning thrown while trying to retrieve proteins:", cond), type = "warning")
       })
 
       if(!is.null(xml) && length(xml) > 0){#if no error, and something was retrieved
