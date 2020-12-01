@@ -264,7 +264,7 @@ drawFeature <- function(figure, d, toParse, condition, yStart, yStop, indent = T
     if(dim(found)[1] != 0) foundAny <- TRUE #Used to show that elements were drawn to screen, needed for offset features
 
     if(!is.null(found) && nrow(found) > 0){
-      for(k in seq_along(found)){
+      for(k in seq_len(nrow(found))){
         row <- found[k,]
 
         if(!is.na(row[,1])){#Used to make sure a NA table isn't returned
@@ -280,12 +280,3 @@ drawFeature <- function(figure, d, toParse, condition, yStart, yStop, indent = T
 
   return(list(figure = figure, actionPreformed = foundAny))
 }
-
-
-#source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataParse.R")
-#source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataRetrieval.R")
-#source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/utilities.R")
-#
-#drawProtein("Q04206",
-#            types = list(type = "modified residue"),
-#            saveGlobal = TRUE)
