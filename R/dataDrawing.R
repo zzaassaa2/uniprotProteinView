@@ -191,8 +191,6 @@ assertColors <- function (colorsIn){
 #'
 #' @param clr Color
 #'
-#' @param offset Offset on the X-axis of where to start drawing
-#'
 #' @return Returns the plot, with the new feature drawn on
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
@@ -205,12 +203,15 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr){
   if(!is.na(nameIn) && nchar(nameIn) >= 30) nameIn <- paste0(substr(nameIn, 1, 30), "...")
 
   if(xf - xi == 0){
-    xi <- xi - 1
-    xf <- xf + 1
+    xxi <- xi - 1
+    xxf <- xf + 1
+  }else{
+    xxi <- xi
+    xxf <- xf
   }
 
   plotly::add_trace(figure,
-                    x = c(xi, xi, xf, xf),
+                    x = c(xxi, xxi, xxf, xxf),
                     y = c(yi, yf, yf, yi),
                     fill = "toself",
                     fillcolor = clr,
@@ -242,8 +243,6 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr){
 #' @param yStart Height element should begin drawing from
 #'
 #' @param yStop Height element should stop drawing at
-#'
-#' @param offset Offset of where drawing on the X-axis takes place
 #'
 #' @param indent If the input should be indented, used to indent features of a protein
 #'
@@ -283,14 +282,3 @@ drawFeature <- function(figure, d, toParse, condition, yStart, yStop, indent = T
 
   return(list(figure = figure, actionPreformed = foundAny))
 }
-
-source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataParse.R")
-source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataRetrieval.R")
-source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/utilities.R")
-
-drawProtein(
-  proteins = list(type = c("Q04206", "Q9D270"), colors = c("green", "green")),
-  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-  descriptionSearch = list(type = "phos", colors = "blue"),
-  offSetFeatures = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple"))
-)

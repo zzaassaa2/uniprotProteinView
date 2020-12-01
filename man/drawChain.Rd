@@ -4,7 +4,7 @@
 \alias{drawChain}
 \title{INTERNAL FUNCTION: Main draw function}
 \usage{
-drawChain(figure, xi, xf, yi, yf, info, clr, offset = 0)
+drawChain(figure, xi, xf, yi, yf, info, clr)
 }
 \arguments{
 \item{figure}{Main plotly plot/figure}
@@ -20,8 +20,6 @@ drawChain(figure, xi, xf, yi, yf, info, clr, offset = 0)
 \item{info}{Description info, used for legend nameing and hover info}
 
 \item{clr}{Color}
-
-\item{offset}{Offset on the X-axis of where to start drawing}
 }
 \value{
 Returns the plot, with the new feature drawn on

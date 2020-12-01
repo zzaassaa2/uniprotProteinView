@@ -4,7 +4,7 @@
 \alias{getProtein}
 \title{Get protein XML data}
 \usage{
-getProtein(source, showProgress)
+getProtein(source, showProgress = TRUE)
 }
 \arguments{
 \item{source}{List of entries for which to attempt to load}

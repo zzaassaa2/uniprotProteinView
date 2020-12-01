@@ -9,7 +9,6 @@ drawProtein(
   types = list(),
   descriptionSearch = list(),
   offSetFeatures = list(),
-  singleOffset = 1,
   title = NULL,
   saveGlobal = FALSE,
   btwnSpacingStart = 1,
@@ -43,11 +42,6 @@ will normally be rendered above the protein, though this can be chaged by specif
 btwnSpacingStart and btwnSpacing. This list can also contain an element called colors that can
 equal a rgb() value, string of a color, or the word in order "random" for a random color, to
 specify what color the element in the same order will be}
-
-\item{singleOffset}{The offset +- by parameter value used for rendering features specified
-using the parameter dess, as these entries are noramally reserved for protein modifications,
-which are single amino acids, and thus would not render otherwise, thus this parameter allows
-the user to specify how thick they will show up.}
 
 \item{title}{The title that the plot will inherit}
 
