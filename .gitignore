@@ -45,11 +45,8 @@ gen
 # translation temp files
 po/*~
 
-Q04206.xml
-Q9D270.xml
-inst/doc
 doc
 Meta
 todo.txt
 .Rproj.user
-inst/shiny-scripts/rsconnect/*
+/inst/shiny-scripts/rsconnect/
