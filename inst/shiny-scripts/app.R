@@ -1,5 +1,6 @@
 library("shiny")
 
+#Fixes the colors list to account for random|number# type inputs
 assertColors <- function (colorsIn){
   colorsIn <- strsplit(colorsIn, "\\s+")[[1]]
   colorsIn <- unlist(colorsIn)#This is needed cause apparently the startsWith function doesn't like lists
@@ -48,7 +49,9 @@ assertColors <- function (colorsIn){
 
 ui <- fluidPage(
   theme = "bootstrap.css", #Load bootstrap css see: https://bootswatch.com/cerulean/
+  #Draw Title
   tagList(tags$head(tags$title("uniprotProteinView")), div(class = "col-sm-12 jumbotron", h1("uniprotProteinView"))),
+  #Info
   tags$div(
   class = "card bg-light mb-3",
     tags$div(
@@ -83,6 +86,7 @@ ui <- fluidPage(
   hr(),
 
   fluidRow(
+    #Protein key_code input
     column(3,
            wellPanel(#File chooser
              textInput(inputId = "file", label = "UniProt Protein Key", placeholder = "Key_code"),
@@ -91,6 +95,7 @@ ui <- fluidPage(
              div(id = "placeHolder")
            )
     ),
+    #Type selection input
     column(3,
            wellPanel(
             selectInput("selectType", label = "Select Type to Search", choices = list()),
@@ -99,6 +104,7 @@ ui <- fluidPage(
             div(id = "addedTypes")
            )
     ),
+    #Description search input
     column(3,
            wellPanel(
              textInput("selectDesSearch", label = "Select Description to Search"),
@@ -107,6 +113,7 @@ ui <- fluidPage(
              div(id = "addedDesSearch")
            )
     ),
+    #Type input search that are to be offset
     column(3,
            wellPanel(
              selectInput("selectOffset", label = "Select Elements to Offset", choices = list()),
@@ -122,6 +129,7 @@ ui <- fluidPage(
     plotly::plotlyOutput("graph")
   ),
 
+  #footer
   tags$div(
     class="card text-white bg-primary mb-3",
     tags$div(
@@ -136,7 +144,7 @@ ui <- fluidPage(
 )
 
 server <- function (input, output, session){
-  rv <- shiny::reactiveValues(files = NULL, types = list(), dess = list(), offset = list())
+  rv <- shiny::reactiveValues(files = NULL, types = NULL, dess = NULL, offset = NULL)
 
   observe({
     x <- rv$files
@@ -145,9 +153,10 @@ server <- function (input, output, session){
         x <- data.table::rbindlist(x[,"features"])
         x <- x[,1]
         x <- x[!duplicated(x)]#Removes duplicated elements
-        x <- x[order(x)]
-        updateSelectInput(session, "selectType", choices = x[-1])
-        updateSelectInput(session, "selectOffset", choices = x[-1])
+        x <- x[x$type != "chain",]#Removes the chain feature
+        x <- x[order(x)]#Order them by alphabet
+        updateSelectInput(session, "selectType", choices = x)
+        updateSelectInput(session, "selectOffset", choices = x)
       }else{
         #This is here, for when not null, but also empty. An error would be thrown otherwise
         updateSelectInput(session, "selectType", choices = list())
@@ -252,109 +261,127 @@ server <- function (input, output, session){
   #Type event
   observeEvent(input$addType, {
     if(input$selectType != ""){
-      v <- rv$types$type[input$selectType]#Check for duplicate, if already there, skip
-      if(length(v) > 0){
-        showNotification(paste(input$selectType, "is aleady added"))
+      value <- input$selectType
+
+      if(length(rv$types[rv$types[,1] == value,])){
+        showNotification(paste(value, "already exists. Skipping"))
       }else{
-        rv$types$type <- append(rv$types$type, input$selectType)
         if(input$typeChooseColor == ""){
           clr <- "random"
         }else{
           clr <- input$typeChooseColor
         }
-        rv$types$colors <- append(rv$types$colors, clr)
 
-        k <- gsub(" ", "_", input$selectType)
-        k2 <- paste0("addType_",k, input$addType)
+        rv$types <- rbind(rv$types, list(type = value, colors = clr))
+
+        k <- gsub("\\s+", "_", value)
+        k2 <- paste0("addType_", k, input$addType)
         insertUI(
           selector = "#addedTypes",
           ui = tags$div(
             id = k2,
             class = "alert alert-dismissible alert-success",
             tags$p(
-              tags$style(paste0("#",k2, "{color: ",clr,"}")),
+              tags$style(paste0("#", k2, "{color: ", clr, "}")),
               k
             ),
             actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
           )
         )
+
         observeEvent(input[[paste0("button", k2)]],{
           removeUI(selector = paste0("#", k2))
-          rv$types <- rv$types[rv$types$type != input$selectType]
+          v <- rv$types[rv$types[,1] != value,]
+          if(is.vector(v)){
+            v <- rbind(NULL, list(type = v[[1]], colors = v[[2]]))
+          }
+          rv$types <- v
         })
       }
     }
   })
 
-  #Description search fields
+  #Description search event
   observeEvent(input$addDesSearch, {
     if(input$selectDesSearch != ""){
-      v <- rv$dess$type[input$selectDesSearch]#Check for duplicate, if already there, skip
-      if(length(v) > 0){
-        showNotification(paste(input$selectDesSearch, "is aleady added"))
+      value <- input$selectDesSearch
+
+      if(length(rv$dess[rv$dess[,1] == value,])){
+        showNotification(paste(value, "already exists. Skipping"))
       }else{
-        rv$dess$type <- append(rv$dess$type, input$selectDesSearch)
         if(input$dessChooseColor == ""){
           clr <- "random"
         }else{
           clr <- input$dessChooseColor
         }
-        rv$dess$colors <- append(rv$dess$colors, clr)
 
-        k <- gsub(" ", "_", input$selectDesSearch)
-        k2 <- paste0("addDesSearch_",k, input$addDesSearch)
+        rv$dess <- rbind(rv$dess, list(type = value, colors = clr))
+
+        k <- gsub("\\s+", "_", value)
+        k2 <- paste0("addDesSearch_", k, input$addDesSearch)
         insertUI(
           selector = "#addedDesSearch",
           ui = tags$div(
             id = k2,
             class = "alert alert-dismissible alert-success",
             tags$p(
-              tags$style(paste0("#",k2, "{color: ",clr,"}")),
+              tags$style(paste0("#", k2, "{color: ", clr, "}")),
               k
             ),
             actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
           )
         )
+
         observeEvent(input[[paste0("button", k2)]],{
           removeUI(selector = paste0("#", k2))
-          rv$dess <- rv$dess[rv$dess$type != input$selectDesSearch]
+          v <- rv$dess[rv$dess[,1] != value,]
+          if(is.vector(v)){
+            v <- rbind(NULL, list(type = v[[1]], colors = v[[2]]))
+          }
+          rv$dess <- v
         })
       }
     }
   })
 
-  #Offset search fields
+  #Offset Type search event
   observeEvent(input$addOffset, {
     if(input$selectOffset != ""){
-      v <- rv$offset$type[input$selectOffset]#Check for duplicate, if already there, skip
-      if(length(v) > 0){
-        showNotification(paste(input$selectOffset, "is aleady added"))
+      value <- input$selectOffset
+
+      if(length(rv$offset[rv$offset[,1] == value,])){
+        showNotification(paste(value, "already exists. Skipping"))
       }else{
-        rv$offset$type <- append(rv$offset$type, input$selectOffset)
         if(input$offsetChooseColor == ""){
           clr <- "random"
         }else{
           clr <- input$offsetChooseColor
         }
-        rv$offset$colors <- append(rv$offset$colors, clr)
 
-        k <- gsub(" ", "_", input$selectOffset)
-        k2 <- paste0("addOffset_",k, input$addOffset)
+        rv$offset <- rbind(rv$offset, list(type = value, colors = clr))
+
+        k <- gsub("\\s+", "_", value)
+        k2 <- paste0("addOffset_", k, input$addOffset)
         insertUI(
           selector = "#addedOffset",
           ui = tags$div(
             id = k2,
             class = "alert alert-dismissible alert-success",
             tags$p(
-              tags$style(paste0("#",k2, "{color: ",clr,"}")),
+              tags$style(paste0("#", k2, "{color: ", clr, "}")),
               k
             ),
             actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
           )
         )
+
         observeEvent(input[[paste0("button", k2)]],{
           removeUI(selector = paste0("#", k2))
-          rv$offset <- rv$offset[rv$offset$type != input$selectOffset]
+          v <- rv$offset[rv$offset[,1] != value,]
+          if(is.vector(v)){
+            v <- rbind(NULL, list(type = v[[1]], colors = v[[2]]))
+          }
+          rv$offset <- v
         })
       }
     }
@@ -365,11 +392,27 @@ server <- function (input, output, session){
     if(!is.null(rv$files) && nrow(rv$files) > 0){
       withProgress(message = "Generating Plot", value = 1,{
         tryCatch({
+          if(is.null(rv$types)){
+            types <- list()
+          }else{
+            types <- list(type = isolate(rv$types[,1]), colors = isolate(rv$types[,2]))
+          }
+          if(is.null(rv$dess)){
+            descriptionSearch <- list()
+          }else{
+            descriptionSearch <- list(type = isolate(rv$dess[,1]), colors = isolate(rv$dess[,2]))
+          }
+          if(is.null(offset)){
+            offSetFeatures <- list()
+          }else{
+            offSetFeatures <- list(type = isolate(rv$offset[,1]), colors = isolate(rv$offset[,2]))
+          }
+
           output$graph <- plotly::renderPlotly({
             uniprotProteinView::drawProtein(proteins = list(preComputed = isolate(rv$files)),
-                                            types = list(type = isolate(rv$types$type), colors = isolate(rv$types$colors)),
-                                            descriptionSearch = list(type = isolate(rv$dess$type), colors = isolate(rv$dess$colors)),
-                                            offSetFeatures = list(type = isolate(rv$offset$type), colors = isolate(rv$offset$colors)),
+                                            types = types,
+                                            descriptionSearch = descriptionSearch,
+                                            offSetFeatures = offSetFeatures,
                                             showProgress = FALSE
             )
           })
