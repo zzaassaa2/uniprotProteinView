@@ -1,7 +1,5 @@
 library("shiny")
 
-source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataParse.R")
-
 assertColors <- function (colorsIn){
   colorsIn <- strsplit(colorsIn, "\\s+")[[1]]
   colorsIn <- unlist(colorsIn)#This is needed cause apparently the startsWith function doesn't like lists
