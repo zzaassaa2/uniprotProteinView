@@ -1,5 +1,7 @@
 library("shiny")
 
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataParse.R")
+
 assertColors <- function (colorsIn){
   colorsIn <- strsplit(colorsIn, "\\s+")[[1]]
   colorsIn <- unlist(colorsIn)#This is needed cause apparently the startsWith function doesn't like lists
@@ -145,6 +147,7 @@ server <- function (input, output, session){
         x <- data.table::rbindlist(x[,"features"])
         x <- x[,1]
         x <- x[!duplicated(x)]#Removes duplicated elements
+        x <- x[order(x)]
         updateSelectInput(session, "selectType", choices = x[-1])
         updateSelectInput(session, "selectOffset", choices = x[-1])
       }else{
@@ -192,9 +195,11 @@ server <- function (input, output, session){
         incProgress(1/n, detail = "Generating dataframe")
         features <- NULL#This is if there is an error for the feature dataframe getting, needed for if the random protein is bad xml
         tryCatch({
-          features <- uniprotProteinView::getFeaturesDataFrame(xml)#Get features dataframe
+          features <- getFeaturesDataFrame(xml)#Get features dataframe
         }, error = function (cond){
           showNotification(paste("Error while attempting to generate features data frame. Original error message as follows:",cond))
+        }, warning = function (cond){
+          showNotification(paste("Warning thrown while trying to generate features dataframe:", cond))
         })
         colors <- assertColors(input$fileChooseColor)
 
@@ -249,96 +254,111 @@ server <- function (input, output, session){
   #Type event
   observeEvent(input$addType, {
     if(input$selectType != ""){
-      rv$types$type <- append(rv$types$type, input$selectType)
-      if(input$typeChooseColor == ""){
-        clr <- "random"
+      v <- rv$types$type[input$selectType]#Check for duplicate, if already there, skip
+      if(length(v) > 0){
+        showNotification(paste(input$selectType, "is aleady added"))
       }else{
-        clr <- input$typeChooseColor
-      }
-      rv$types$colors <- append(rv$types$colors, clr)
+        rv$types$type <- append(rv$types$type, input$selectType)
+        if(input$typeChooseColor == ""){
+          clr <- "random"
+        }else{
+          clr <- input$typeChooseColor
+        }
+        rv$types$colors <- append(rv$types$colors, clr)
 
-      k <- gsub(" ", "_", input$selectType)
-      k2 <- paste0("addType_",k, input$addType)
-      insertUI(
-        selector = "#addedTypes",
-        ui = tags$div(
-          id = k2,
-          class = "alert alert-dismissible alert-success",
-          tags$p(
-            tags$style(paste0("#",k2, "{color: ",clr,"}")),
-            k
-          ),
-          actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
+        k <- gsub(" ", "_", input$selectType)
+        k2 <- paste0("addType_",k, input$addType)
+        insertUI(
+          selector = "#addedTypes",
+          ui = tags$div(
+            id = k2,
+            class = "alert alert-dismissible alert-success",
+            tags$p(
+              tags$style(paste0("#",k2, "{color: ",clr,"}")),
+              k
+            ),
+            actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
+          )
         )
-      )
-      observeEvent(input[[paste0("button", k2)]],{
-        removeUI(selector = paste0("#", k2))
-        rv$types <- rv$types[rv$types$type != input$selectType]
-      })
+        observeEvent(input[[paste0("button", k2)]],{
+          removeUI(selector = paste0("#", k2))
+          rv$types <- rv$types[rv$types$type != input$selectType]
+        })
+      }
     }
   })
 
   #Description search fields
   observeEvent(input$addDesSearch, {
     if(input$selectDesSearch != ""){
-      rv$dess$type <- append(rv$dess$type, input$selectDesSearch)
-      if(input$dessChooseColor == ""){
-        clr <- "random"
+      v <- rv$dess$type[input$selectDesSearch]#Check for duplicate, if already there, skip
+      if(length(v) > 0){
+        showNotification(paste(input$selectDesSearch, "is aleady added"))
       }else{
-        clr <- input$dessChooseColor
-      }
-      rv$dess$colors <- append(rv$dess$colors, clr)
+        rv$dess$type <- append(rv$dess$type, input$selectDesSearch)
+        if(input$dessChooseColor == ""){
+          clr <- "random"
+        }else{
+          clr <- input$dessChooseColor
+        }
+        rv$dess$colors <- append(rv$dess$colors, clr)
 
-      k <- gsub(" ", "_", input$selectDesSearch)
-      k2 <- paste0("addDesSearch_",k, input$addDesSearch)
-      insertUI(
-        selector = "#addedDesSearch",
-        ui = tags$div(
-          id = k2,
-          class = "alert alert-dismissible alert-success",
-          tags$p(
-            tags$style(paste0("#",k2, "{color: ",clr,"}")),
-            k
-          ),
-          actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
+        k <- gsub(" ", "_", input$selectDesSearch)
+        k2 <- paste0("addDesSearch_",k, input$addDesSearch)
+        insertUI(
+          selector = "#addedDesSearch",
+          ui = tags$div(
+            id = k2,
+            class = "alert alert-dismissible alert-success",
+            tags$p(
+              tags$style(paste0("#",k2, "{color: ",clr,"}")),
+              k
+            ),
+            actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
+          )
         )
-      )
-      observeEvent(input[[paste0("button", k2)]],{
-        removeUI(selector = paste0("#", k2))
-        rv$dess <- rv$dess[rv$dess$type != input$selectDesSearch]
-      })
+        observeEvent(input[[paste0("button", k2)]],{
+          removeUI(selector = paste0("#", k2))
+          rv$dess <- rv$dess[rv$dess$type != input$selectDesSearch]
+        })
+      }
     }
   })
 
   #Offset search fields
   observeEvent(input$addOffset, {
     if(input$selectOffset != ""){
-      rv$offset$type <- append(rv$offset$type, input$selectOffset)
-      if(input$offsetChooseColor == ""){
-        clr <- "random"
+      v <- rv$offset$type[input$selectOffset]#Check for duplicate, if already there, skip
+      if(length(v) > 0){
+        showNotification(paste(input$selectOffset, "is aleady added"))
       }else{
-        clr <- input$offsetChooseColor
-      }
-      rv$offset$colors <- append(rv$offset$colors, clr)
+        rv$offset$type <- append(rv$offset$type, input$selectOffset)
+        if(input$offsetChooseColor == ""){
+          clr <- "random"
+        }else{
+          clr <- input$offsetChooseColor
+        }
+        rv$offset$colors <- append(rv$offset$colors, clr)
 
-      k <- gsub(" ", "_", input$selectOffset)
-      k2 <- paste0("addOffset_",k, input$addOffset)
-      insertUI(
-        selector = "#addedOffset",
-        ui = tags$div(
-          id = k2,
-          class = "alert alert-dismissible alert-success",
-          tags$p(
-            tags$style(paste0("#",k2, "{color: ",clr,"}")),
-            k
-          ),
-          actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
+        k <- gsub(" ", "_", input$selectOffset)
+        k2 <- paste0("addOffset_",k, input$addOffset)
+        insertUI(
+          selector = "#addedOffset",
+          ui = tags$div(
+            id = k2,
+            class = "alert alert-dismissible alert-success",
+            tags$p(
+              tags$style(paste0("#",k2, "{color: ",clr,"}")),
+              k
+            ),
+            actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
+          )
         )
-      )
-      observeEvent(input[[paste0("button", k2)]],{
-        removeUI(selector = paste0("#", k2))
-        rv$offset <- rv$offset[rv$offset$type != input$selectOffset]
-      })
+        observeEvent(input[[paste0("button", k2)]],{
+          removeUI(selector = paste0("#", k2))
+          rv$offset <- rv$offset[rv$offset$type != input$selectOffset]
+        })
+      }
     }
   })
 

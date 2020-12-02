@@ -19,21 +19,33 @@ getFeaturesDataFrame <- function(xmls){
   for(i in seq_along(featuresList)){
     features <- NULL
     featList <- featuresList[[i]]
-    for(j in seq_along(featList)){
-      obj <- featList[[j]]
 
-      des <- obj$.attrs["description"]
-      if(is.na(des)){
-        des <- obj$.attrs["type"]
+    for(j in seq_along(featList)){
+      obj <- featList[[j]]#Get the feature of interest
+
+      type <- obj$.attrs["type"]#Get type and check if it exists, if not, skip it
+      if(is.na(type) || is.null(type)){
+        next
+      }
+
+      des <- obj$.attrs["description"]#Get description and check if it exists, if not, use type
+      if(is.na(des) || is.null(des)){
+        des <- type
       }
 
       if(!is.null(obj$location[["begin"]])) {
-        posB <- as.numeric(obj$location$begin)
-        posE <- as.numeric(obj$location$end)
+        #The as list, is that sometimes there will be a position, AND a status, but cause it is a vector, it is easier to just make it a list
+        posB <- as.numeric(as.list(obj$location$begin)$position)
+        posE <- as.numeric(as.list(obj$location$end)$position)
       }else{
         #This is needed for single amino acid modifications
         posB <- as.numeric(obj$location$position)
         posE <- as.numeric(obj$location$position)
+      }
+
+      #Make sure the the number is good, as both NA and numeric(0) are possible bad outputs, if so, skip
+      if(is.na(posB) || is.na(posE) || identical(numeric(0), posB) || identical(numeric(0), posE)){
+        next
       }
 
       features <- rbind(features, c(obj$.attrs["type"], des, posB, posE))#Binds together all parts to form matrix
