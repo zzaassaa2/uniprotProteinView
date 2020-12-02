@@ -195,7 +195,7 @@ server <- function (input, output, session){
         incProgress(1/n, detail = "Generating dataframe")
         features <- NULL#This is if there is an error for the feature dataframe getting, needed for if the random protein is bad xml
         tryCatch({
-          features <- getFeaturesDataFrame(xml)#Get features dataframe
+          features <- uniprotProteinView::getFeaturesDataFrame(xml)#Get features dataframe
         }, error = function (cond){
           showNotification(paste("Error while attempting to generate features data frame. Original error message as follows:",cond))
         }, warning = function (cond){
