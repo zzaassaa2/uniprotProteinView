@@ -1,11 +1,5 @@
 library("shiny")
 
-source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataDrawing.R")
-source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataParse.R")
-source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataRetrieval.R")
-source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/runUniprotProteinView.R")
-source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/utilities.R")
-
 #Fixes the colors list to account for random|number# type inputs
 assertColors <- function (colorsIn){
   colorsIn <- strsplit(colorsIn, "\\s+")[[1]]
