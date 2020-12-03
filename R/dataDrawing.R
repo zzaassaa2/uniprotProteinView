@@ -298,6 +298,3 @@ getFeatures <- function (data, typeParse, colors, condition, yStart, yStop, inde
 
   return(list(table = fig, actionPreformed = foundAny))
 }
-
-
-drawProtein(proteins = list(preComputed = types))

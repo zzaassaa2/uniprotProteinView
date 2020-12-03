@@ -5,3 +5,4 @@
 ^.idea$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^News.md
