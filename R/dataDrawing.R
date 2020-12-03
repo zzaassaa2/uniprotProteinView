@@ -102,7 +102,7 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
     table <- rbind(chain, typeTable, dessTable, offsetTable)
     table <- data.frame(table)
     #Orders them from largest to smallest, in hopes to make sure nothing is hidden behind larger elements when drawn
-    table <- table[order(unlist(table$xi) - unlist(table$xf)),]
+    #table <- table[order(unlist(table$xi) - unlist(table$xf)),]
 
     #Draw all rows in data frame
     for(j in seq_len(nrow(table))){

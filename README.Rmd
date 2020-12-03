@@ -42,35 +42,16 @@ To view an interactive Shiny app, you can visit the webpage [Shiny App](https://
 uniprotProteinView::runUniprotProteinDraw()
 ```
 
-Otherwise, the most simple usage of the function `drawProtein` is to supply it with a protein key_code. This can be found from the UniProt webpage at [UniProt](https://www.uniprot.org/). Once there, search for your protein and get the protein key_code.
-
-This code can then be used as shown below. As an example, we will use human transcription factor p65, with code Q04206.
-
-```r
-#Note: that your protein will be a different color than the image shown, by default the function chooses a random color
-uniprotProteinView::drawProtein("Q04206")
-```
-
-<div style="text-align:center"><img src="inst/extdata/first.png" width="800" height="450"/></div>
-
-Here the function will search the UniProt database for the protein and then draw the main chain. Further details about the structure can be added. For further information, look through the vignettes:
+For more information on the package, call:
 
 ```r
 browseVignettes("uniprotProteinView")
 ```
 
-An example of a more advanced usage with two proteins is:
+Package overview:
 
-```r
-uniprotProteinView::drawProtein(
-  proteins = list(type = c("Q04206", "Q9D270"), colors = c("green", "green")),
-  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
-  descriptionSearch = list(type = "phos", colors = "blue"),
-  offSetFeatures = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple"))
-)
-```
+<div style="text-align:center"><img src="inst/extdata/overview.png" width="800" height = "450"/>Created with BioRender.com</div>
 
-<div style="text-align:center"><img src="inst/extdata/second.png" width="800" height="450"/></div>
 
 # Contributions
 
@@ -95,3 +76,31 @@ Wickham, H. and Bryan, J. (2019). R Packages (2nd edition). Newton, Massachusett
 # Acknowledgements
 
 This package was developed as part of an assessment for 2020BCB410H: Applied Bioinformatics, University of Toronto, Toronto, CANADA.
+
+# Examples
+
+The most simple usage of the function `drawProtein` is to supply it with a protein key_code. This can be found from the UniProt webpage at [UniProt](https://www.uniprot.org/). Once there, search for your protein and get the protein key_code.
+
+This code can then be used as shown below. As an example, we will use human transcription factor p65, with code Q04206.
+
+```r
+#Note: that your protein will be a different color than the image shown, by default the function chooses a random color
+uniprotProteinView::drawProtein("Q04206")
+```
+
+<div style="text-align:center"><img src="inst/extdata/first.png" width="800" height="450"/></div>
+
+Here the function will search the UniProt database for the protein and then draw the main chain. Further details about the structure can be added. For further information, look through the vignettes.
+
+An example of a more advanced usage with two proteins is:
+
+```r
+uniprotProteinView::drawProtein(
+  proteins = list(type = c("Q04206", "Q9D270"), colors = c("green", "green")),
+  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+  descriptionSearch = list(type = "phos", colors = "blue"),
+  offSetFeatures = list(type = c("strand", "helix", "turn"), colors = c("green", "orange", "purple"))
+)
+```
+
+<div style="text-align:center"><img src="inst/extdata/second.png" width="800" height="450"/></div>

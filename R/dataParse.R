@@ -49,11 +49,12 @@ getFeaturesDataFrame <- function(xmls){
       }
 
       #Binds together all parts to form matrix
-      features <- rbind(features, list(type = obj$.attrs["type"], description = des, begin = posB, end = posE))
+      features <- rbind(features, c(obj$.attrs["type"], des, posB, posE))
     }
 
     #Create a data frame of all the proteins features
     dataframe <- data.frame(features)
+    colnames(dataframe) <- c("type", "description", "begin", "end")
     dataframe$begin <- as.numeric(dataframe$begin)
     dataframe$end <- as.numeric(dataframe$end)
 

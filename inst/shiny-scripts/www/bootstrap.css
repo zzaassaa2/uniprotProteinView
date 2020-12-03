@@ -42,6 +42,12 @@
   --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+/*EDIT START*/
+.card-text{
+  font-size: 125%;
+}
+/*EDIT STOP*/
+
 *,
 *::before,
 *::after {

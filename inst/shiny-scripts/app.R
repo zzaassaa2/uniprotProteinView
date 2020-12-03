@@ -1,5 +1,11 @@
 library("shiny")
 
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataDrawing.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataParse.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataRetrieval.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/runUniprotProteinView.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/utilities.R")
+
 #Fixes the colors list to account for random|number# type inputs
 assertColors <- function (colorsIn){
   colorsIn <- strsplit(colorsIn, "\\s+")[[1]]
@@ -78,6 +84,7 @@ ui <- fluidPage(
       "want the second to have a desired color, type \"random red\", and the first will have a random color, and the second will be red. The user can also use similar random format as protein input to specify number. ",
     "They can type \"random|number:2\" to give the first two proteins a random color. Thus an exmaple would be to give the protein input \"random|number:3 Q04206\" and color input \"random|number:2 red green\". ",
       "This will generate 3 random proteins, with the last being red, and the Q04206 protein green. This color syntax only applies to protein selection and not to type, description, or offset choosing."),
+    p(class = "card-text", "The user can also zoom in on regions of the graph by either sliding the mouse, when pressed, in the y-axis, x-axis, or in both direction"),
     p(class="card-text", "The use of | for specifing conditions only applies to the Shiny app, for equivilant syntax for when using pure R code, see the vignettes."),
     p(class="card-text", "For more information, or reference, see the github site: ", a(href = "https://github.com/zzaassaa2/uniprotProteinView", "uniprotProteinView."))
     )
@@ -153,6 +160,7 @@ server <- function (input, output, session){
         x <- x[,1]
         x <- x[!duplicated(x)]#Removes duplicated elements
         x <- x[x$type != "chain",]#Removes the chain feature
+        .GlobalEnv$k <- x
         x <- x[order(x)]#Order them by alphabet
         updateSelectInput(session, "selectType", choices = x)
         updateSelectInput(session, "selectOffset", choices = x)
