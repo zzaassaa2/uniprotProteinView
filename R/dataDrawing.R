@@ -75,22 +75,40 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
   figure <- plotly::plot_ly(type = "scatter", mode = "lines")
   yStart <- 0#This variable is used to keep track of where the next protein element should be drawn
 
+  #Fix input for the parse and associated colors
+  typeParse <- ifelse("type" %in% names(types), types$type, types)
+  typeClrs <- ifelse("colors" %in% names(types), types$colors, NULL)
+  dessParse <- ifelse("type" %in% names(descriptionSearch), descriptionSearch$type, descriptionSearch)
+  dessClrs <- ifelse("colors" %in% names(descriptionSearch), descriptionSearch$colors, NULL)
+  offsetParse <- ifelse("type" %in% names(offSetFeatures), offSetFeatures$type, offSetFeatures)
+  offsetClrs <- ifelse("colors" %in% names(offSetFeatures), offSetFeatures$colors, NULL)
+
   for(i in seq_along(uniProtProteinView_data)){#Iterate through, this should be equal to number of proteins input
     d <- uniProtProteinView_data[[i]]#Feature data for current protein
 
     #Color of main chain
-    clr <- ifelse(i <= length(colors), colors[[i]], randomColor())
-    #Draws the proteins main chain
-    figure <- drawFeature(figure, d, list(colors = clr), function (type) d$type == "chain", yStart, yStop = yStart + 1, indent = FALSE)$figure
+    chainColor <- ifelse(i <= length(colors), colors[[i]], randomColor())
 
-    #Draws all stand features by if the name is a literal match (excluding capatilization) to the input
-    figure <- drawFeature(figure, d, types, function(type) tolower(d$type) == tolower(type), yStart, yStop = yStart + 1)$figure
-    #Draws all features that contain the given string in their description
-    figure <- drawFeature(figure, d, descriptionSearch, function(type) grepl(tolower(type), tolower(d$description), fixed = TRUE), yStart, yStop = yStart + 1)$figure
+    #Get main chain
+    chain <- getFeatures(d, list("placeholder"), chainColor, function (type) d$type == "chain", yStart, yStart + 1, FALSE)$table
+    #Get types
+    typeTable <- getFeatures(d, typeParse, typeClrs, function (type) tolower(d$type) == tolower(type), yStart, yStart + 1, TRUE)$table
+    #Get description search
+    dessTable <- getFeatures(d, dessParse, dessClrs, function (type) grepl(tolower(type), tolower(d$description), fixed = TRUE), yStart, yStart + 1, TRUE)$table
+    #Get offset type search. Separated into two parts, so no blank space is left if nothing is to be drawn
+    offsetTableTmp <- getFeatures(d, offsetParse, offsetClrs, function (type) tolower(d$type) == tolower(type), yStart + btwnSpacingStart, yStart + btwnSpacingStart + btwnSpacing, TRUE)
+    offsetTable <- offsetTableTmp$table
 
-    #Draws all features that are wished to be drawn offset.
-    f <- drawFeature(figure, d, offSetFeatures, function (type) tolower(d$type) == tolower(type), yStart+btwnSpacingStart, yStop = yStart + btwnSpacingStart + btwnSpacing)
-    figure <- f$figure
+    table <- rbind(chain, typeTable, dessTable, offsetTable)
+    table <- data.frame(table)
+    #Orders them from largest to smallest, in hopes to make sure nothing is hidden behind larger elements when drawn
+    table <- table[order(unlist(table$xi) - unlist(table$xf)),]
+
+    #Draw all rows in data frame
+    for(j in seq_len(nrow(table))){
+      row <- table[j,]
+      figure <- drawChain(figure, row$xi[[1]], row$xf[[1]], row$yi[[1]], row$yf[[1]], row$info[[1]], row$color[[1]])
+    }
 
     #Draws the protein literal name to the left of the protein
     figure <- plotly::layout(figure,
@@ -105,7 +123,7 @@ drawProtein <- function(proteins, types = list(), descriptionSearch = list(), of
     )
 
     #Used to determine if any offSet features where drawn if not, ignore and increment yStart by just 1 and move on
-    if(f$actionPreformed) yStart <- yStart + btwnSpacing
+    if(offsetTableTmp$actionPreformed) yStart <- yStart + btwnSpacing
     yStart <- yStart + 1
   }
 
@@ -202,6 +220,7 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr){
   #Limits the max legend size for the name to be 30 characters
   if(!is.na(nameIn) && nchar(nameIn) >= 30) nameIn <- paste0(substr(nameIn, 1, 30), "...")
 
+  .GlobalEnv$x <- xf
   if(xf - xi == 0){
     xxi <- xi - 1
     xxf <- xf + 1
@@ -231,12 +250,12 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr){
 #' Corrects input varables to proper form and used to interate through entries
 #' that were found based upon input condition.
 #'
-#' @param figure Main plotly plot/figure
+#' @param data Dataframe containing proteins' features
 #'
-#' @param d Dataframe containing proteins' features
-#'
-#' @param toParse Specific entires that will search through the features
+#' @param typeParse Specific entires that will search through the features
 #' dataframe to find matchs based upon condition
+#'
+#' @param colors Colors matched to typeParse features by interation number
 #'
 #' @param condition Condition function for when to return true for match
 #'
@@ -249,34 +268,36 @@ drawChain <- function(figure, xi, xf, yi, yf, info, clr){
 #' @return Returns figure will all matching features drawn on
 #'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
-drawFeature <- function(figure, d, toParse, condition, yStart, yStop, indent = TRUE){
-  #These two functions are used in case the user should provide a list with type and color specified, or just a regular list or vector
-  typeParse <- ifelse("type" %in% names(toParse), toParse$type, toParse)
-  colors <- ifelse("colors" %in% names(toParse), toParse$colors, NULL)
+getFeatures <- function (data, typeParse, colors, condition, yStart, yStop, indent = TRUE){
+  #variable initialization
+  fig <- NULL
+  clrLength <- length(colors)
   foundAny <- FALSE
 
-  for(j in seq_along(typeParse)){
-    type <- typeParse[[j]]#Current feature to draw should it be present in the protein features
-    #Used to make sure that if the user only provided one color for two proteins, then the function will simply use a random color
-    clr <- ifelse(j <= length(colors), colors[[j]], randomColor())
-    clr <- ifelse(clr == "random", randomColor(), clr)#checks if the color was random, if so, use a random color
-    found <- d[condition(type),]#Get any features of the condition type, should there by any
-    if(dim(found)[1] != 0) foundAny <- TRUE #Used to show that elements were drawn to screen, needed for offset features
+  for(i in seq_along(typeParse)){
+    type <- typeParse[[i]]
+    #Fixes color input before hand
+    clr <- ifelse(i <= clrLength, colors[[i]], randomColor())
+    clr <- ifelse(clr == "random", randomColor(), clr)
+    found <- data[condition(type),]
+    if(dim(found)[1] != 0) foundAny <- TRUE
 
     if(!is.null(found) && nrow(found) > 0){
-      for(k in seq_len(nrow(found))){
-        row <- found[k,]
-
-        if(!is.na(row[,1])){#Used to make sure a NA table isn't returned
-          #Used by the legend, so that the main chain isn't indented, while all features for the protiein are indented on the legend
-          info <- ifelse(indent, paste0("    ", row$description), row$description)
+      for(j in seq_len(nrow(found))){
+        row <- found[j,]
+        #Needed cause sometimes NAs are thrown improperly, this might have been fixed, but I will keep this around just in case
+        if(!is.na(row[,1])){
+          info <- ifelse(indent, paste0("     ", row$description), row$description)
           xi <- row$begin
           xf <- row$end
-          figure <- drawChain(figure, xi, xf, yStart, yStop, info, clr)
+          fig <- rbind(fig, list(xi = xi, xf = xf, yi = yStart, yf = yStop, info = info, color = clr))
         }
       }
     }
   }
 
-  return(list(figure = figure, actionPreformed = foundAny))
+  return(list(table = fig, actionPreformed = foundAny))
 }
+
+
+drawProtein(proteins = list(preComputed = types))

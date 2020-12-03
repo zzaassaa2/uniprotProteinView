@@ -1,5 +1,11 @@
 library("shiny")
 
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataDrawing.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataParse.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/dataRetrieval.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/runUniprotProteinView.R")
+source("/Users/georgezorn/CLionProjects/uniprotProteinView/R/utilities.R")
+
 #Fixes the colors list to account for random|number# type inputs
 assertColors <- function (colorsIn){
   colorsIn <- strsplit(colorsIn, "\\s+")[[1]]
@@ -136,8 +142,7 @@ ui <- fluidPage(
       class="card-body",
       tags$footer(
         class = "card-text",
-        "This package and website was developed by George Zorn, as part of an assessment for 2020BCB410H: Applied Bioinformatics, University of Toronto, Toronto, CANADA.",
-        "This webpage makes use of a bootstrap css script made free for use by Thomas Park. ", tags$a(href="https://bootswatch.com/", "Website "), tags$a(href="https://github.com/thomaspark/bootswatch", "Github")
+        "This package and website was developed by George Zorn, as part of an assessment for 2020BCB410H: Applied Bioinformatics, University of Toronto, Toronto, CANADA."
       )
     )
   )
@@ -407,9 +412,8 @@ server <- function (input, output, session){
           }else{
             offSetFeatures <- list(type = isolate(rv$offset[,1]), colors = isolate(rv$offset[,2]))
           }
-
           output$graph <- plotly::renderPlotly({
-            uniprotProteinView::drawProtein(proteins = list(preComputed = isolate(rv$files)),
+            drawProtein(proteins = list(preComputed = isolate(rv$files)),
                                             types = types,
                                             descriptionSearch = descriptionSearch,
                                             offSetFeatures = offSetFeatures,
