@@ -22,6 +22,24 @@ user can specify a UniProt protein key_code where the function will then attempt
 the XML data from the webpage. Alternativly, the user can use "random" to randomly pick
 a protein.
 }
+\examples{
+#Example 1:
+#This will get the xml data for the protein Q04206
+proteinXml <- getProtein("Q04206")
+
+#Example 2:
+#This will get a random human protein and the Q04206 protein
+proteinXml <- getProtein(c("random", "Q04206"))
+
+#Example 3:
+#This will get 4 random human proteins
+proteinXml <- getProtein("random number:4")
+
+#Example 4:
+#This will get 3 random mouse proteins, the protein Q04206, and then 2 more random human proteins
+proteinXml <- getProtein(c("random number:3 orgid:10090", "Q04206", "random number:2"))
+
+}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

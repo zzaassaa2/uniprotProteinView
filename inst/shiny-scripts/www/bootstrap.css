@@ -47,9 +47,10 @@
   font-size: 125%;
 }
 
-.alttext{
-  -webkit-text-stroke-width: 2px;
-  -webkit-text-stroke-color: red;
+.customContainer{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start
 }
 /*EDIT STOP*/
 

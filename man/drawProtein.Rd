@@ -65,6 +65,47 @@ then draw further features for the protein as specified within, should they be p
 Can search for features by either exact match, or if description contains an input string.
 Can also further draw certain features above the structure, traditionally structural features
 }
+\examples{
+#Example 1:
+#This is the simplest usage of the function. Will draw the main chain with a random color
+drawProtein("Q04206")
+
+#Example 2:
+#This will draw two proteins, with specified colors, showing various features drawn on
+drawProtein(
+  proteins = list(type = c("Q04206", "Q9D270"), colors = c("green", "green")),
+  types = list(type = c("domain", "region of interest"), colors = c("red", "purple")),
+  descriptionSearch = list(type = "phos", colors = "blue"),
+  offSetFeatures = list(type = c("strand", "helix", "turn"),
+                        colors = c("green", "orange", "purple"))
+)
+
+#Example 3:
+#This will draw the first protein red, then 4 random mouse proteins random colors,
+# then one more random mouse protein green.
+#It will also draw the domains and regions of interest, black and pink, respectivly.
+# Along with all elements that contain "phos" somewhere in there descriptions
+drawProtein(proteins = list(type = c("Q04206", "random orgid:10090 number:5"),
+                            colors = c("red", "random number:4", "green")),
+            types = list(type = c("domain", "region of interest"), colors = c("black", "pink")),
+            descriptionSearch = "phos"
+)
+
+#Example 4:
+#This shows how to manually get the data and dataframe and use them directly to draw
+xml <- uniprotProteinView::getProtein("Q04206", FALSE) #Get protein xml data
+features <- uniprotProteinView::getFeaturesDataFrame(xml) #Get features dataframe
+
+#Create matrix
+matrix <- rbind(list(xml = xml[[1]], features = features[[1]], colors = "red"))
+
+#Draw using the "preComputed" keyword
+uniprotProteinView::drawProtein(proteins = list(preComputed = matrix))
+
+}
+\references{
+Plotly R Open Source Graphing Library. Plotly. Website. \href{https://plotly.com/r/}{Link}
+}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

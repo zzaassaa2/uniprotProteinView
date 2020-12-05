@@ -17,6 +17,14 @@ Cycles through all proteins and for each, finds all entries called
 "features", then addes them to a dataframe for each protein and combines
 all dataframes into a list
 }
+\examples{
+#Example 1:
+#This will fetch the protein data, then generate the features dataframe for it
+webPageData <- uniprotProteinView::getProtein("Q04206", FALSE)
+features <- uniprotProteinView::getFeaturesDataFrame(webPageData)
+
+
+}
 \author{
 {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 }

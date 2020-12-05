@@ -21,7 +21,7 @@ library("uniprotProteinView")
 
 # Overview
 
-The uniprotProteinView package provides six functions. However the user
+The uniprotProteinView package provides four functions. However the user
 will normally only need to use two: `drawProtein()`, the main drawing
 function, or `runUniprotProteinView()`, a function that opens up an
 interactive Shiny app. To see further documentation:
@@ -30,8 +30,10 @@ interactive Shiny app. To see further documentation:
 ls("package:uniprotProteinView")
 ```
 
-To view an interactive Shiny app, you can visit the webpage [Shiny
-App](https://zzaassaa2.shinyapps.io/proteinView/), or call the function:
+To view an interactive Shiny app, you can visit the webpage: [Shiny
+App](https://zzaassaa2.shinyapps.io/proteinView/)
+
+Alternatively, the user can call the function:
 
 ``` r
 uniprotProteinView::runUniprotProteinDraw()

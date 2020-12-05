@@ -1,7 +1,5 @@
 library("shiny")
 
-
-
 randomColor <- function(){
   i <- runif(3)
   rgb(i[[1]],
@@ -24,7 +22,7 @@ assertColors <- function (colorsIn){
       #Sees if there was an element that started with "random"
       if(strWith[[i]]){
         str <- gsub("\\|+", " ", colorsIn[[i]])
-        str <- strsplit(str[[i]], "\\s+")[[1]]#Splits by white space
+        str <- strsplit(str, "\\s+")[[1]]#Splits by white space
         number <- str[startsWith(str, "number")]#If the number feature was specified
         #If number was added, then use what is after the ":", if not, then character(0) is returned, so just use 1
         number <- ifelse(identical(character(0), number), 1, sub(".*:", "", number))
@@ -142,13 +140,10 @@ ui <- fluidPage(
 
   #footer
   tags$div(
-    class="card text-white bg-primary mb-3",
-    tags$div(
-      class="card-body",
-      tags$footer(
-        class = "card-text",
-        "This package and website was developed by George Zorn, as part of an assessment for 2020BCB410H: Applied Bioinformatics, University of Toronto, Toronto, CANADA."
-      )
+    class="card text-white bg-primary mb-3 card-body",
+    tags$footer(
+      class = "card-text",
+      "This package and website was developed by George Zorn, as part of an assessment for 2020BCB410H: Applied Bioinformatics, University of Toronto, Toronto, CANADA."
     )
   )
 )
@@ -238,11 +233,17 @@ server <- function (input, output, session){
             selector = "#placeHolder",
             ui = tags$div(
               id = k2,
-              class = "alert alert-dismissible alert-success alttext",
+              class = "alert alert-dismissible alert-success customContainer",
               tags$p(
-                tags$style(paste0("#", k2, "{color: ", clr, "}")),
                 xValue
               ),
+              tags$div(style = paste0("float: left;
+                                       width: 12px;
+                                       height: 12px;
+                                       margin-left: 5px;
+                                       border: 1px solid rgba(0, 0, 0, .2);",
+                                      "background: ", clr, ";"
+                       )),
               actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
             )
           )
@@ -290,11 +291,17 @@ server <- function (input, output, session){
           selector = "#addedTypes",
           ui = tags$div(
             id = k2,
-            class = "alert alert-dismissible alert-success",
+            class = "alert alert-dismissible alert-success customContainer",
             tags$p(
-              tags$style(paste0("#", k2, "{color: ", clr, "}")),
               k
             ),
+            tags$div(style = paste0("float: left;
+                                     width: 12px;
+                                     height: 12px;
+                                     margin-left: 5px;
+                                     border: 1px solid rgba(0, 0, 0, .2);",
+                                    "background: ", clr, ";"
+            )),
             actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
           )
         )
@@ -333,11 +340,17 @@ server <- function (input, output, session){
           selector = "#addedDesSearch",
           ui = tags$div(
             id = k2,
-            class = "alert alert-dismissible alert-success",
+            class = "alert alert-dismissible alert-success customContainer",
             tags$p(
-              tags$style(paste0("#", k2, "{color: ", clr, "}")),
               k
             ),
+            tags$div(style = paste0("float: left;
+                                     width: 12px;
+                                     height: 12px;
+                                     margin-left: 5px;
+                                     border: 1px solid rgba(0, 0, 0, .2);",
+                                    "background: ", clr, ";"
+            )),
             actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
           )
         )
@@ -376,11 +389,17 @@ server <- function (input, output, session){
           selector = "#addedOffset",
           ui = tags$div(
             id = k2,
-            class = "alert alert-dismissible alert-success",
+            class = "alert alert-dismissible alert-success customContainer",
             tags$p(
-              tags$style(paste0("#", k2, "{color: ", clr, "}")),
               k
             ),
+            tags$div(style = paste0("float: left;
+                                     width: 12px;
+                                     height: 12px;
+                                     margin-left: 5px;
+                                     border: 1px solid rgba(0, 0, 0, .2);",
+                                    "background: ", clr, ";"
+            )),
             actionButton(paste0("button", k2), "X", class = "btn btn-default action-button close")
           )
         )

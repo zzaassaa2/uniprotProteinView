@@ -8,6 +8,13 @@
 #'
 #' @return List of dataframes for each protein's XML data
 #'
+#' @examples
+#' #Example 1:
+#' #This will fetch the protein data, then generate the features dataframe for it
+#' webPageData <- uniprotProteinView::getProtein("Q04206", FALSE)
+#' features <- uniprotProteinView::getFeaturesDataFrame(webPageData)
+#'
+#'
 #' @author {George Zorn, \email{george.zorn@mail.utoronto.ca}}
 #'
 #' @export
