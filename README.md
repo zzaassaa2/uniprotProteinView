@@ -134,3 +134,5 @@ uniprotProteinView::drawProtein(
 <img src="inst/extdata/second.png" width="800" height="450"/>
 
 </div>
+
+For further information see the vignettes.

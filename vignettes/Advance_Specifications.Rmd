@@ -167,7 +167,7 @@ matrix <- rbind(list(xml = xml[[1]], features = features[[1]], colors = "red"))
 uniprotProteinView::drawProtein(proteins = list(preComputed = matrix))
 ```
 
-The `preComputed` method, must provide the function with a list containing a named element called "preComputed". This should itself have a matrix with column names of "xml", "features", and "colors". The colors input is for the colors of the protein. Each row should have its own xml, features and colors, where colors is equal to a single color. Further, if the user is trying to add cvs data to the drawProtein function, this is the method to do so. For xml data, this argument is actually partially not required for when using the `preComputed` input method. All that is required here is a list with a field called `name`, thus the following is a completely valid input.
+The `preComputed` method, must provide the function with a list containing a named element called "preComputed". This should itself have a matrix with column names of "xml", "features", and "colors". The colors input is for the colors of the protein. Each row should have its own xml, features and colors, where colors is equal to a single color. Further, if the user is trying to add csv data to the drawProtein function, this is the method to do so. For xml data, this argument is actually partially not required for when using the `preComputed` input method. All that is required here is a list with a field called `name`, thus the following is a completely valid input.
 
 ```r
 xml <- uniprotProteinView::getProtein("Q04206", "Q06628", FALSE)
@@ -179,5 +179,5 @@ matrix <- rbind(matrix, list(xml = list(name = "Pear"), features = features[[1]]
 uniprotProteinView::drawProtein(proteins = list(preComputed = matrix))
 ```
 
-There by from this, one means the user can load up information and feed it into the drawProtein function, might be to use the file name for the name parameter for xml, and then the cvs data for the features data frame.
+There by from this, one means the user can load up information and feed it into the drawProtein function, might be to use the file name for the name parameter for xml, and then the csv data for the features data frame.
 

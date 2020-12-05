@@ -46,6 +46,11 @@
 .card-text{
   font-size: 125%;
 }
+
+.alttext{
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: red;
+}
 /*EDIT STOP*/
 
 *,

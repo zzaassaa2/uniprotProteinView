@@ -1,5 +1,15 @@
 library("shiny")
 
+
+
+randomColor <- function(){
+  i <- runif(3)
+  rgb(i[[1]],
+      i[[2]],
+      i[[3]]
+  )
+}
+
 #Fixes the colors list to account for random|number# type inputs
 assertColors <- function (colorsIn){
   colorsIn <- strsplit(colorsIn, "\\s+")[[1]]
@@ -27,11 +37,11 @@ assertColors <- function (colorsIn){
           out <- out[1:k]
 
           for(j in 1:number){#Adds random for each entry
-            out[offset] <- "random"
+            out[offset] <- randomColor()
             offset <- offset + 1
           }
         }else{
-          out[offset] <- "random"
+          out[offset] <- randomColor()
           offset <- offset + 1
         }
       }else{
@@ -150,11 +160,10 @@ server <- function (input, output, session){
     x <- rv$files
     if(!is.null(x)){
       if(nrow(x) > 0){#update the type and offset lists with the possible values
-        x <- data.table::rbindlist(x[,"features"])
+        x <- Reduce(function(...) merge(..., all=T), x[,"features"])
         x <- x[,1]
         x <- x[!duplicated(x)]#Removes duplicated elements
-        x <- x[x$type != "chain",]#Removes the chain feature
-        .GlobalEnv$k <- x
+        x <- x[x != "chain"]#Removes the chain feature
         x <- x[order(x)]#Order them by alphabet
         updateSelectInput(session, "selectType", choices = x)
         updateSelectInput(session, "selectOffset", choices = x)
@@ -219,7 +228,7 @@ server <- function (input, output, session){
           if(j <= length(colors)){
             clr <- colors[[j]]
           }else{
-            clr <- "random"
+            clr <- randomColor()
           }
 
           xValue <- prot[[1]]
@@ -229,7 +238,7 @@ server <- function (input, output, session){
             selector = "#placeHolder",
             ui = tags$div(
               id = k2,
-              class = "alert alert-dismissible alert-success",
+              class = "alert alert-dismissible alert-success alttext",
               tags$p(
                 tags$style(paste0("#", k2, "{color: ", clr, "}")),
                 xValue
@@ -268,7 +277,7 @@ server <- function (input, output, session){
         showNotification(paste(value, "already exists. Skipping"))
       }else{
         if(input$typeChooseColor == ""){
-          clr <- "random"
+          clr <- randomColor()
         }else{
           clr <- input$typeChooseColor
         }
@@ -311,7 +320,7 @@ server <- function (input, output, session){
         showNotification(paste(value, "already exists. Skipping"))
       }else{
         if(input$dessChooseColor == ""){
-          clr <- "random"
+          clr <- randomColor()
         }else{
           clr <- input$dessChooseColor
         }
@@ -354,7 +363,7 @@ server <- function (input, output, session){
         showNotification(paste(value, "already exists. Skipping"))
       }else{
         if(input$offsetChooseColor == ""){
-          clr <- "random"
+          clr <- randomColor()
         }else{
           clr <- input$offsetChooseColor
         }
